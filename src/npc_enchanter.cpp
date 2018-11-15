@@ -239,7 +239,7 @@ public:
 
     bool OnGossipHello(Player* player, Creature* creature)
     {
-        player->ADD_GOSSIP_ITEM(1, "|TInterface/ICONS/trade_engraving:24:24:-18|t[Welcome to the enchanting NPC!]", GOSSIP_SENDER_MAIN, 0);
+        player->ADD_GOSSIP_ITEM(1, "|TInterface/ICONS/trade_engraving:24:24:-18|tWelcome to the enchanting NPC!", GOSSIP_SENDER_MAIN, 0);
         player->ADD_GOSSIP_ITEM(1, "|TInterface/ICONS/Inv_mace_116:24:24:-18|t[Enchant Weapon]", GOSSIP_SENDER_MAIN, 1);
         player->ADD_GOSSIP_ITEM(1, "|TInterface/ICONS/Inv_axe_113:24:24:-18|t[Enchant 2H Weapon]", GOSSIP_SENDER_MAIN, 2);
         player->ADD_GOSSIP_ITEM(1, "|TInterface/ICONS/Inv_shield_71:24:24:-18|t[Enchant Shield]", GOSSIP_SENDER_MAIN, 3);
@@ -270,7 +270,7 @@ public:
             player->GetSession()->SendAreaTriggerMessage("|cffFF0000Hello there, I will enchant your gear!");
 
             {
-                player->ADD_GOSSIP_ITEM(1, "|TInterface/ICONS/trade_engraving:24:24:-18|t[Welcome to the enchanting NPC!]", GOSSIP_SENDER_MAIN, 0);
+                player->ADD_GOSSIP_ITEM(1, "|TInterface/ICONS/trade_engraving:24:24:-18|tWelcome to the enchanting NPC!", GOSSIP_SENDER_MAIN, 0);
                 player->ADD_GOSSIP_ITEM(1, "|TInterface/ICONS/Inv_mace_116:24:24:-18|t[Enchant Weapon]", GOSSIP_SENDER_MAIN, 1);
                 player->ADD_GOSSIP_ITEM(1, "|TInterface/ICONS/Inv_axe_113:24:24:-18|t[Enchant 2H Weapon]", GOSSIP_SENDER_MAIN, 2);
                 player->ADD_GOSSIP_ITEM(1, "|TInterface/ICONS/Inv_shield_71:24:24:-18|t[Enchant Shield]", GOSSIP_SENDER_MAIN, 3);
@@ -1048,7 +1048,7 @@ public:
 
         case 300:
         {
-            player->ADD_GOSSIP_ITEM(1, "|TInterface/ICONS/trade_engraving:24:24:-18|t[Welcome to the enchanting NPC!]", GOSSIP_SENDER_MAIN, 0);
+            player->ADD_GOSSIP_ITEM(1, "|TInterface/ICONS/trade_engraving:24:24:-18|tWelcome to the enchanting NPC!", GOSSIP_SENDER_MAIN, 0);
             player->ADD_GOSSIP_ITEM(1, "|TInterface/ICONS/Inv_mace_116:24:24:-18|t[Enchant Weapon]", GOSSIP_SENDER_MAIN, 1);
             player->ADD_GOSSIP_ITEM(1, "|TInterface/ICONS/Inv_axe_113:24:24:-18|t[Enchant 2H Weapon]", GOSSIP_SENDER_MAIN, 2);
             player->ADD_GOSSIP_ITEM(1, "|TInterface/ICONS/Inv_shield_71:24:24:-18|t[Enchant Shield]", GOSSIP_SENDER_MAIN, 3);
