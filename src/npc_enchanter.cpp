@@ -379,6 +379,11 @@ public:
             player->ADD_GOSSIP_ITEM(1, "37 Stamina + 20 Defense", GOSSIP_SENDER_MAIN, 128);
             player->ADD_GOSSIP_ITEM(1, "50 Attack Power + 20 Crit", GOSSIP_SENDER_MAIN, 129);
             player->ADD_GOSSIP_ITEM(1, "50 Attack Power + 20 Resilliance", GOSSIP_SENDER_MAIN, 130);
+            player->ADD_GOSSIP_ITEM(1, "Arcanum of Eclipsed Moon", GOSSIP_SENDER_MAIN, 131);
+            player->ADD_GOSSIP_ITEM(1, "Arcanum of the Flame's Soul", GOSSIP_SENDER_MAIN, 132);
+            player->ADD_GOSSIP_ITEM(1, "Arcanum of the Fleeing Shadow", GOSSIP_SENDER_MAIN, 133);
+            player->ADD_GOSSIP_ITEM(1, "Arcanum of the Frosty Soul", GOSSIP_SENDER_MAIN, 134);
+            player->ADD_GOSSIP_ITEM(1, "Arcanum of Toxic Warding", GOSSIP_SENDER_MAIN, 135);
             player->ADD_GOSSIP_ITEM(1, "<-Back", GOSSIP_SENDER_MAIN, 300);
             player->PlayerTalkClass->SendGossipMenu(100005, creature->GetGUID());
             return true;
@@ -495,6 +500,7 @@ public:
             player->ADD_GOSSIP_ITEM(1, "15 Stamina + Minor Speed Increase", GOSSIP_SENDER_MAIN, 192);
             player->ADD_GOSSIP_ITEM(1, "16 Agility", GOSSIP_SENDER_MAIN, 193);
             player->ADD_GOSSIP_ITEM(1, "18 Spirit", GOSSIP_SENDER_MAIN, 194);
+            player->ADD_GOSSIP_ITEM(1, "Restore 7 Health + Mp5", GOSSIP_SENDER_MAIN, 195);
             player->ADD_GOSSIP_ITEM(1, "12 Hit Rating + 12 Critical", GOSSIP_SENDER_MAIN, 196);
             player->ADD_GOSSIP_ITEM(1, "22 Stamina", GOSSIP_SENDER_MAIN, 197);
             if (player->HasSkill(SKILL_ENGINEERING) && player->GetSkillValue(SKILL_ENGINEERING) == 450)
