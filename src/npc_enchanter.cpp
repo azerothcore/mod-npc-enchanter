@@ -239,7 +239,7 @@ public:
 
     bool OnGossipHello(Player* player, Creature* creature)
     {
-        player->ADD_GOSSIP_ITEM(1, "|TInterface/ICONS/trade_engraving:24:24:-18|tWelcome to the Enchanting NPC!", GOSSIP_SENDER_MAIN, 0);
+        player->ADD_GOSSIP_ITEM(1, "|TInterface/ICONS/trade_engraving:24:24:-18|tBeauregard Boneglitter at your service!", GOSSIP_SENDER_MAIN, 0);
         player->ADD_GOSSIP_ITEM(1, "|TInterface/ICONS/Inv_mace_116:24:24:-18|t[Enchant Weapon]", GOSSIP_SENDER_MAIN, 1);
         player->ADD_GOSSIP_ITEM(1, "|TInterface/ICONS/Inv_axe_113:24:24:-18|t[Enchant 2H Weapon]", GOSSIP_SENDER_MAIN, 2);
         player->ADD_GOSSIP_ITEM(1, "|TInterface/ICONS/Inv_shield_71:24:24:-18|t[Enchant Shield]", GOSSIP_SENDER_MAIN, 3);
@@ -250,7 +250,7 @@ public:
         player->ADD_GOSSIP_ITEM(1, "|TInterface/ICONS/inv_bracer_14:24:24:-18|t[Enchant Bracers]", GOSSIP_SENDER_MAIN, 8);
         player->ADD_GOSSIP_ITEM(1, "|TInterface/ICONS/inv_gauntlets_06:24:24:-18|t[Enchant Gloves]", GOSSIP_SENDER_MAIN, 9);
         player->ADD_GOSSIP_ITEM(1, "|TInterface/ICONS/inv_pants_11:24:24:-18|t[Enchant Legs]", GOSSIP_SENDER_MAIN, 10);
-        player->ADD_GOSSIP_ITEM(1, "|TInterface/ICONS/inv_boots_05:24:24:-18|t[Enchant Feet]", GOSSIP_SENDER_MAIN, 11);
+        player->ADD_GOSSIP_ITEM(1, "|TInterface/ICONS/inv_boots_05:24:24:-18|t[Enchant Boots]", GOSSIP_SENDER_MAIN, 11);
 
         if (player->HasSkill(SKILL_ENCHANTING) && player->GetSkillValue(SKILL_ENCHANTING) == 450)
             player->ADD_GOSSIP_ITEM(1, "|TInterface/ICONS/Inv_jewelry_ring_85:24:24:-18|t[Enchant Rings]", GOSSIP_SENDER_MAIN, 12);
@@ -267,7 +267,7 @@ public:
         switch (action)
         {
         case 0: //Welcome message on click
-            player->GetSession()->SendAreaTriggerMessage("|cffFF0000Hello there, I will enchant your gear!");
+            player->GetSession()->SendAreaTriggerMessage("|cffFF0000Beauregard Boneglitter at your service!");
 
             {
                 player->ADD_GOSSIP_ITEM(1, "|TInterface/ICONS/trade_engraving:24:24:-18|tWelcome to the Enchanting NPC!", GOSSIP_SENDER_MAIN, 0);
@@ -281,7 +281,7 @@ public:
                 player->ADD_GOSSIP_ITEM(1, "|TInterface/ICONS/inv_bracer_14:24:24:-18|t[Enchant Bracers]", GOSSIP_SENDER_MAIN, 8);
                 player->ADD_GOSSIP_ITEM(1, "|TInterface/ICONS/inv_gauntlets_06:24:24:-18|t[Enchant Gloves]", GOSSIP_SENDER_MAIN, 9);
                 player->ADD_GOSSIP_ITEM(1, "|TInterface/ICONS/inv_pants_11:24:24:-18|t[Enchant Legs]", GOSSIP_SENDER_MAIN, 10);
-                player->ADD_GOSSIP_ITEM(1, "|TInterface/ICONS/inv_boots_05:24:24:-18|t[Enchant Feet]", GOSSIP_SENDER_MAIN, 11);
+                player->ADD_GOSSIP_ITEM(1, "|TInterface/ICONS/inv_boots_05:24:24:-18|t[Enchant Boots]", GOSSIP_SENDER_MAIN, 11);
 
                 if (player->HasSkill(SKILL_ENCHANTING) && player->GetSkillValue(SKILL_ENCHANTING) == 450)
                     player->ADD_GOSSIP_ITEM(1, "|TInterface/ICONS/Inv_jewelry_ring_85:24:24:-18|t[Enchant Rings]", GOSSIP_SENDER_MAIN, 12);
@@ -495,7 +495,7 @@ public:
             return true;
             break;
 
-        case 11: //Enchant feet
+        case 11: //Enchant Boots
             player->ADD_GOSSIP_ITEM(1, "32 Attack Power", GOSSIP_SENDER_MAIN, 191);
             player->ADD_GOSSIP_ITEM(1, "15 Stamina + Minor Speed Increase", GOSSIP_SENDER_MAIN, 192);
             player->ADD_GOSSIP_ITEM(1, "16 Agility", GOSSIP_SENDER_MAIN, 193);
@@ -1065,7 +1065,7 @@ public:
             player->ADD_GOSSIP_ITEM(1, "|TInterface/ICONS/inv_bracer_14:24:24:-18|t[Enchant Bracers]", GOSSIP_SENDER_MAIN, 8);
             player->ADD_GOSSIP_ITEM(1, "|TInterface/ICONS/inv_gauntlets_06:24:24:-18|t[Enchant Gloves]", GOSSIP_SENDER_MAIN, 9);
             player->ADD_GOSSIP_ITEM(1, "|TInterface/ICONS/inv_pants_11:24:24:-18|t[Enchant Legs]", GOSSIP_SENDER_MAIN, 10);
-            player->ADD_GOSSIP_ITEM(1, "|TInterface/ICONS/inv_boots_05:24:24:-18|t[Enchant Feet]", GOSSIP_SENDER_MAIN, 11);
+            player->ADD_GOSSIP_ITEM(1, "|TInterface/ICONS/inv_boots_05:24:24:-18|t[Enchant Boots]", GOSSIP_SENDER_MAIN, 11);
 
             if (player->HasSkill(SKILL_ENCHANTING) && player->GetSkillValue(SKILL_ENCHANTING) == 450)
                 player->ADD_GOSSIP_ITEM(1, "|TInterface/ICONS/Inv_jewelry_ring_85:24:24:-18|t[Enchant Rings]", GOSSIP_SENDER_MAIN, 12);
