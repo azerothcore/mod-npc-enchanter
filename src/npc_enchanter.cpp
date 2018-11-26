@@ -197,7 +197,7 @@ void Enchant(Player* player, Item* item, uint32 enchantid)
 {
     if (!item)
     {
-        player->GetSession()->SendNotification("You must first equip the item you are trying to enchant in order to enchant it!");
+        player->GetSession()->SendNotification("Please equip the item you are tring to enchant!");
         return;
     }
 
@@ -239,7 +239,7 @@ public:
 
     bool OnGossipHello(Player* player, Creature* creature)
     {
-        player->ADD_GOSSIP_ITEM(1, "|TInterface/ICONS/trade_engraving:24:24:-18|tWelcome to the enchanting NPC!", GOSSIP_SENDER_MAIN, 0);
+        player->ADD_GOSSIP_ITEM(1, "|TInterface/ICONS/trade_engraving:24:24:-18|tWelcome to the Enchanting NPC!", GOSSIP_SENDER_MAIN, 0);
         player->ADD_GOSSIP_ITEM(1, "|TInterface/ICONS/Inv_mace_116:24:24:-18|t[Enchant Weapon]", GOSSIP_SENDER_MAIN, 1);
         player->ADD_GOSSIP_ITEM(1, "|TInterface/ICONS/Inv_axe_113:24:24:-18|t[Enchant 2H Weapon]", GOSSIP_SENDER_MAIN, 2);
         player->ADD_GOSSIP_ITEM(1, "|TInterface/ICONS/Inv_shield_71:24:24:-18|t[Enchant Shield]", GOSSIP_SENDER_MAIN, 3);
@@ -270,7 +270,7 @@ public:
             player->GetSession()->SendAreaTriggerMessage("|cffFF0000Hello there, I will enchant your gear!");
 
             {
-                player->ADD_GOSSIP_ITEM(1, "|TInterface/ICONS/trade_engraving:24:24:-18|tWelcome to the enchanting NPC!", GOSSIP_SENDER_MAIN, 0);
+                player->ADD_GOSSIP_ITEM(1, "|TInterface/ICONS/trade_engraving:24:24:-18|tWelcome to the Enchanting NPC!", GOSSIP_SENDER_MAIN, 0);
                 player->ADD_GOSSIP_ITEM(1, "|TInterface/ICONS/Inv_mace_116:24:24:-18|t[Enchant Weapon]", GOSSIP_SENDER_MAIN, 1);
                 player->ADD_GOSSIP_ITEM(1, "|TInterface/ICONS/Inv_axe_113:24:24:-18|t[Enchant 2H Weapon]", GOSSIP_SENDER_MAIN, 2);
                 player->ADD_GOSSIP_ITEM(1, "|TInterface/ICONS/Inv_shield_71:24:24:-18|t[Enchant Shield]", GOSSIP_SENDER_MAIN, 3);
@@ -311,7 +311,7 @@ public:
             player->ADD_GOSSIP_ITEM(1, "63 Spell Power", GOSSIP_SENDER_MAIN, 112);
             player->ADD_GOSSIP_ITEM(1, "Mongoose", GOSSIP_SENDER_MAIN, 113);
             player->ADD_GOSSIP_ITEM(1, "Executioner", GOSSIP_SENDER_MAIN, 114);
-            player->ADD_GOSSIP_ITEM(1, "<-Back", GOSSIP_SENDER_MAIN, 300);
+            player->ADD_GOSSIP_ITEM(1, "<- Back", GOSSIP_SENDER_MAIN, 300);
             player->PlayerTalkClass->SendGossipMenu(100002, creature->GetGUID());
             return true;
             break;
@@ -320,7 +320,7 @@ public:
             item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
             if (!item)
             {
-                creature->MonsterWhisper("This enchant needs a 2H weapon equipped.", player, 0);
+                creature->MonsterWhisper("This enchant requires a 2H weapon to be equipped.", player, 0);
                 player->PlayerTalkClass->SendCloseGossip();
                 return false;
             }
@@ -332,11 +332,11 @@ public:
                 player->ADD_GOSSIP_ITEM(1, "81 Spell Power", GOSSIP_SENDER_MAIN, 115);
                 player->ADD_GOSSIP_ITEM(1, "35 Agility", GOSSIP_SENDER_MAIN, 116);
                 player->ADD_GOSSIP_ITEM(1, "110 Attack Power", GOSSIP_SENDER_MAIN, 117);
-                player->ADD_GOSSIP_ITEM(1, "<-Back", GOSSIP_SENDER_MAIN, 300);
+                player->ADD_GOSSIP_ITEM(1, "<- Back", GOSSIP_SENDER_MAIN, 300);
             }
             else
             {
-                creature->MonsterWhisper("This enchant needs a 2H weapon equipped.", player, 0);
+                creature->MonsterWhisper("This enchant requires a 2H weapon to be equipped.", player, 0);
                 player->PlayerTalkClass->SendCloseGossip();
             }
             player->PlayerTalkClass->SendGossipMenu(100003, creature->GetGUID());
@@ -347,7 +347,7 @@ public:
             item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
             if (!item)
             {
-                creature->MonsterWhisper("This enchant needs a shield equipped.", player, 0);
+                creature->MonsterWhisper("This enchant requires a shield to be equipped.", player, 0);
                 player->PlayerTalkClass->SendCloseGossip();
                 return false;
             }
@@ -359,11 +359,11 @@ public:
                 player->ADD_GOSSIP_ITEM(1, "36 Block", GOSSIP_SENDER_MAIN, 121);
                 player->ADD_GOSSIP_ITEM(1, "18 Stamina", GOSSIP_SENDER_MAIN, 122);
                 player->ADD_GOSSIP_ITEM(1, "81 Block + 50% Less Disarm", GOSSIP_SENDER_MAIN, 123);
-                player->ADD_GOSSIP_ITEM(1, "<-Back", GOSSIP_SENDER_MAIN, 300);
+                player->ADD_GOSSIP_ITEM(1, "<- Back", GOSSIP_SENDER_MAIN, 300);
             }
             else
             {
-                creature->MonsterWhisper("This enchant needs a shield equipped.", player, 0);
+                creature->MonsterWhisper("This enchant requires a shield to be equipped.", player, 0);
                 player->PlayerTalkClass->SendGossipMenu(100004, creature->GetGUID());
 
             }
@@ -374,17 +374,17 @@ public:
         case 4: // Enchant Head
             player->ADD_GOSSIP_ITEM(1, "30 Spell Power + 10 Mp5", GOSSIP_SENDER_MAIN, 124);
             player->ADD_GOSSIP_ITEM(1, "30 Spell Power + 20 Crit", GOSSIP_SENDER_MAIN, 125);
-            player->ADD_GOSSIP_ITEM(1, "29 Spell Power + 20 Resilliance", GOSSIP_SENDER_MAIN, 126);
-            player->ADD_GOSSIP_ITEM(1, "30 Stamina + 25 Resilliance", GOSSIP_SENDER_MAIN, 127);
+            player->ADD_GOSSIP_ITEM(1, "29 Spell Power + 20 Resilience", GOSSIP_SENDER_MAIN, 126);
+            player->ADD_GOSSIP_ITEM(1, "30 Stamina + 25 Resilience", GOSSIP_SENDER_MAIN, 127);
             player->ADD_GOSSIP_ITEM(1, "37 Stamina + 20 Defense", GOSSIP_SENDER_MAIN, 128);
             player->ADD_GOSSIP_ITEM(1, "50 Attack Power + 20 Crit", GOSSIP_SENDER_MAIN, 129);
-            player->ADD_GOSSIP_ITEM(1, "50 Attack Power + 20 Resilliance", GOSSIP_SENDER_MAIN, 130);
+            player->ADD_GOSSIP_ITEM(1, "50 Attack Power + 20 Resilience", GOSSIP_SENDER_MAIN, 130);
             player->ADD_GOSSIP_ITEM(1, "Arcanum of Eclipsed Moon", GOSSIP_SENDER_MAIN, 131);
             player->ADD_GOSSIP_ITEM(1, "Arcanum of the Flame's Soul", GOSSIP_SENDER_MAIN, 132);
             player->ADD_GOSSIP_ITEM(1, "Arcanum of the Fleeing Shadow", GOSSIP_SENDER_MAIN, 133);
             player->ADD_GOSSIP_ITEM(1, "Arcanum of the Frosty Soul", GOSSIP_SENDER_MAIN, 134);
             player->ADD_GOSSIP_ITEM(1, "Arcanum of Toxic Warding", GOSSIP_SENDER_MAIN, 135);
-            player->ADD_GOSSIP_ITEM(1, "<-Back", GOSSIP_SENDER_MAIN, 300);
+            player->ADD_GOSSIP_ITEM(1, "<- Back", GOSSIP_SENDER_MAIN, 300);
             player->PlayerTalkClass->SendGossipMenu(100005, creature->GetGUID());
             return true;
             break;
@@ -399,12 +399,12 @@ public:
             }
             player->ADD_GOSSIP_ITEM(1, "40 Attack Power + 15 Crit", GOSSIP_SENDER_MAIN, 140);
             player->ADD_GOSSIP_ITEM(1, "24 Spell Power + 8 Mp5", GOSSIP_SENDER_MAIN, 141);
-            player->ADD_GOSSIP_ITEM(1, "30 Stamina + 15 Resilliance", GOSSIP_SENDER_MAIN, 142);
+            player->ADD_GOSSIP_ITEM(1, "30 Stamina + 15 Resilience", GOSSIP_SENDER_MAIN, 142);
             player->ADD_GOSSIP_ITEM(1, "20 Dodge + 15 Defense", GOSSIP_SENDER_MAIN, 143);
             player->ADD_GOSSIP_ITEM(1, "24 Spell Power + 15 Crit", GOSSIP_SENDER_MAIN, 144);
-            player->ADD_GOSSIP_ITEM(1, "23 Spell Power + 15 Resilliance", GOSSIP_SENDER_MAIN, 145);
-            player->ADD_GOSSIP_ITEM(1, "40 Attack Power + 15 Resilliance", GOSSIP_SENDER_MAIN, 146);
-            player->ADD_GOSSIP_ITEM(1, "<-Back", GOSSIP_SENDER_MAIN, 300);
+            player->ADD_GOSSIP_ITEM(1, "23 Spell Power + 15 Resilience", GOSSIP_SENDER_MAIN, 145);
+            player->ADD_GOSSIP_ITEM(1, "40 Attack Power + 15 Resilience", GOSSIP_SENDER_MAIN, 146);
+            player->ADD_GOSSIP_ITEM(1, "<- Back", GOSSIP_SENDER_MAIN, 300);
             player->PlayerTalkClass->SendGossipMenu(100006, creature->GetGUID());
             return true;
             break;
@@ -421,24 +421,24 @@ public:
                 player->ADD_GOSSIP_ITEM(1, "Parachute", GOSSIP_SENDER_MAIN, 147);
             }
             player->ADD_GOSSIP_ITEM(1, "Shadow Armor", GOSSIP_SENDER_MAIN, 148);
-            player->ADD_GOSSIP_ITEM(1, "10 Spirit +2% Reduce threat", GOSSIP_SENDER_MAIN, 152);
+            player->ADD_GOSSIP_ITEM(1, "10 Spirit + 2% Reduced Threat", GOSSIP_SENDER_MAIN, 152);
             player->ADD_GOSSIP_ITEM(1, "16 Defense", GOSSIP_SENDER_MAIN, 153);
             player->ADD_GOSSIP_ITEM(1, "35 Spell Penetration", GOSSIP_SENDER_MAIN, 154);
             player->ADD_GOSSIP_ITEM(1, "225 Armor", GOSSIP_SENDER_MAIN, 155);
             player->ADD_GOSSIP_ITEM(1, "22 Agility", GOSSIP_SENDER_MAIN, 156);
             player->ADD_GOSSIP_ITEM(1, "23 Haste", GOSSIP_SENDER_MAIN, 157);
-            player->ADD_GOSSIP_ITEM(1, "<-Back", GOSSIP_SENDER_MAIN, 300);
+            player->ADD_GOSSIP_ITEM(1, "<- Back", GOSSIP_SENDER_MAIN, 300);
             player->PlayerTalkClass->SendGossipMenu(100007, creature->GetGUID());
             return true;
             break;
 
         case 7: //Enchant chest
-            player->ADD_GOSSIP_ITEM(1, "10 All stats", GOSSIP_SENDER_MAIN, 158);
+            player->ADD_GOSSIP_ITEM(1, "+10 All Stats", GOSSIP_SENDER_MAIN, 158);
             player->ADD_GOSSIP_ITEM(1, "225 Health", GOSSIP_SENDER_MAIN, 159);
             player->ADD_GOSSIP_ITEM(1, "10 Mp5", GOSSIP_SENDER_MAIN, 160);
             player->ADD_GOSSIP_ITEM(1, "20 Resilience", GOSSIP_SENDER_MAIN, 161);
             player->ADD_GOSSIP_ITEM(1, "22 Defense", GOSSIP_SENDER_MAIN, 162);
-            player->ADD_GOSSIP_ITEM(1, "<-Back", GOSSIP_SENDER_MAIN, 300);
+            player->ADD_GOSSIP_ITEM(1, "<- Back", GOSSIP_SENDER_MAIN, 300);
             player->PlayerTalkClass->SendGossipMenu(100008, creature->GetGUID());
             return true;
             break;
@@ -449,7 +449,7 @@ public:
             player->ADD_GOSSIP_ITEM(1, "50 Attack Power", GOSSIP_SENDER_MAIN, 165);
             player->ADD_GOSSIP_ITEM(1, "18 Spirit", GOSSIP_SENDER_MAIN, 166);
             player->ADD_GOSSIP_ITEM(1, "15 Expertise", GOSSIP_SENDER_MAIN, 167);
-            player->ADD_GOSSIP_ITEM(1, "6 All stats", GOSSIP_SENDER_MAIN, 168);
+            player->ADD_GOSSIP_ITEM(1, "+6 All Stats", GOSSIP_SENDER_MAIN, 168);
             player->ADD_GOSSIP_ITEM(1, "16 Intellect", GOSSIP_SENDER_MAIN, 169);
             if (player->HasSkill(SKILL_LEATHERWORKING) && player->GetSkillValue(SKILL_LEATHERWORKING) == 450)
             {
@@ -458,11 +458,11 @@ public:
                 player->ADD_GOSSIP_ITEM(1, "Fur Lining - Frost Resist", GOSSIP_SENDER_MAIN, 172);
                 player->ADD_GOSSIP_ITEM(1, "Fur Lining - Nature Resist", GOSSIP_SENDER_MAIN, 173);
                 player->ADD_GOSSIP_ITEM(1, "Fur Lining - Shadow Resist", GOSSIP_SENDER_MAIN, 174);
-                player->ADD_GOSSIP_ITEM(1, "Fur Lining - Attack power", GOSSIP_SENDER_MAIN, 175);
+                player->ADD_GOSSIP_ITEM(1, "Fur Lining - Attack Power", GOSSIP_SENDER_MAIN, 175);
                 player->ADD_GOSSIP_ITEM(1, "Fur Lining - Stamina", GOSSIP_SENDER_MAIN, 176);
                 player->ADD_GOSSIP_ITEM(1, "Fur Lining - Spellpower", GOSSIP_SENDER_MAIN, 177);
             }
-            player->ADD_GOSSIP_ITEM(1, "<-Back", GOSSIP_SENDER_MAIN, 300);
+            player->ADD_GOSSIP_ITEM(1, "<- Back", GOSSIP_SENDER_MAIN, 300);
             player->PlayerTalkClass->SendGossipMenu(100009, creature->GetGUID());
             return true;
             break;
@@ -477,20 +477,20 @@ public:
             player->ADD_GOSSIP_ITEM(1, "20 Agility", GOSSIP_SENDER_MAIN, 181);
             player->ADD_GOSSIP_ITEM(1, "20 Hit Rating", GOSSIP_SENDER_MAIN, 182);
             player->ADD_GOSSIP_ITEM(1, "15 Expertise", GOSSIP_SENDER_MAIN, 183);
-            player->ADD_GOSSIP_ITEM(1, "<-Back", GOSSIP_SENDER_MAIN, 300);
+            player->ADD_GOSSIP_ITEM(1, "<- Back", GOSSIP_SENDER_MAIN, 300);
             player->PlayerTalkClass->SendGossipMenu(100010, creature->GetGUID());
             return true;
             break;
 
         case 10: //Enchant legs
-            player->ADD_GOSSIP_ITEM(1, "40 Resilliance + 28 Stamina", GOSSIP_SENDER_MAIN, 184);
+            player->ADD_GOSSIP_ITEM(1, "40 Resilience + 28 Stamina", GOSSIP_SENDER_MAIN, 184);
             player->ADD_GOSSIP_ITEM(1, "55 Stamina + 22 Agility", GOSSIP_SENDER_MAIN, 185);
             player->ADD_GOSSIP_ITEM(1, "75 Attack Power + 22 Critical", GOSSIP_SENDER_MAIN, 186);
             player->ADD_GOSSIP_ITEM(1, "50 Spell Power + 22 Spirit", GOSSIP_SENDER_MAIN, 187);
             player->ADD_GOSSIP_ITEM(1, "50 Spell Power + 30 Stamina", GOSSIP_SENDER_MAIN, 188);
             player->ADD_GOSSIP_ITEM(1, "72 Stamina + 35 Agility", GOSSIP_SENDER_MAIN, 189);
             player->ADD_GOSSIP_ITEM(1, "100 Attack Power + 36 Critical", GOSSIP_SENDER_MAIN, 190);
-            player->ADD_GOSSIP_ITEM(1, "<-Back", GOSSIP_SENDER_MAIN, 300);
+            player->ADD_GOSSIP_ITEM(1, "<- Back", GOSSIP_SENDER_MAIN, 300);
             player->PlayerTalkClass->SendGossipMenu(100011, creature->GetGUID());
             return true;
             break;
@@ -507,10 +507,10 @@ public:
             {
                 player->ADD_GOSSIP_ITEM(1, "Nitro Boots", GOSSIP_SENDER_MAIN, 198);
                 player->ADD_GOSSIP_ITEM(1, "Hand-Mounted Pyro Rocket", GOSSIP_SENDER_MAIN, 199);
-                player->ADD_GOSSIP_ITEM(1, "Hyperspeed Accedlerators", GOSSIP_SENDER_MAIN, 200);
+                player->ADD_GOSSIP_ITEM(1, "Hyperspeed Accelerators", GOSSIP_SENDER_MAIN, 200);
                 player->ADD_GOSSIP_ITEM(1, "Reticulated Armor Webbing", GOSSIP_SENDER_MAIN, 201);
             }
-            player->ADD_GOSSIP_ITEM(1, "<-Back", GOSSIP_SENDER_MAIN, 300);
+            player->ADD_GOSSIP_ITEM(1, "<- Back", GOSSIP_SENDER_MAIN, 300);
             player->PlayerTalkClass->SendGossipMenu(100012, creature->GetGUID());
             return true;
             break;
@@ -519,7 +519,7 @@ public:
             player->ADD_GOSSIP_ITEM(1, "40 Attack Power", GOSSIP_SENDER_MAIN, 202);
             player->ADD_GOSSIP_ITEM(1, "23 Spell Power", GOSSIP_SENDER_MAIN, 203);
             player->ADD_GOSSIP_ITEM(1, "30 Stamina", GOSSIP_SENDER_MAIN, 204);
-            player->ADD_GOSSIP_ITEM(1, "<-Back", GOSSIP_SENDER_MAIN, 300);
+            player->ADD_GOSSIP_ITEM(1, "<- Back", GOSSIP_SENDER_MAIN, 300);
             player->PlayerTalkClass->SendGossipMenu(100013, creature->GetGUID());
             return true;
             break;
@@ -1054,7 +1054,7 @@ public:
 
         case 300:
         {
-            player->ADD_GOSSIP_ITEM(1, "|TInterface/ICONS/trade_engraving:24:24:-18|tWelcome to the enchanting NPC!", GOSSIP_SENDER_MAIN, 0);
+            player->ADD_GOSSIP_ITEM(1, "|TInterface/ICONS/trade_engraving:24:24:-18|tWelcome to the Enchanting NPC!", GOSSIP_SENDER_MAIN, 0);
             player->ADD_GOSSIP_ITEM(1, "|TInterface/ICONS/Inv_mace_116:24:24:-18|t[Enchant Weapon]", GOSSIP_SENDER_MAIN, 1);
             player->ADD_GOSSIP_ITEM(1, "|TInterface/ICONS/Inv_axe_113:24:24:-18|t[Enchant 2H Weapon]", GOSSIP_SENDER_MAIN, 2);
             player->ADD_GOSSIP_ITEM(1, "|TInterface/ICONS/Inv_shield_71:24:24:-18|t[Enchant Shield]", GOSSIP_SENDER_MAIN, 3);
