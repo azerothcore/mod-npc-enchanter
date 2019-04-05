@@ -69,7 +69,7 @@ Creates an NPC that enchants the player's gear
 #include "ObjectMgr.h"
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
 
 enum Enchants
 {
