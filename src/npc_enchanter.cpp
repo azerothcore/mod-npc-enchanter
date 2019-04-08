@@ -49,7 +49,6 @@ Creates an NPC that enchants the player's gear
 
 */
 
-#include "ScriptMgr.h"
 #include "Configuration/Config.h"
 #include "Cell.h"
 #include "CellImpl.h"
