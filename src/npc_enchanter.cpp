@@ -279,9 +279,9 @@ public:
 
     bool OnGossipHello(Player* player, Creature* creature)
     {
-        player->ADD_GOSSIP_ITEM(1, "|TInterface/ICONS/Inv_mace_116:22:22:-18|t[Enchant Weapon]", GOSSIP_SENDER_MAIN, 1);
-        player->ADD_GOSSIP_ITEM(1, "|TInterface/ICONS/Inv_axe_113:20:20:-18|t[Enchant 2H Weapon]", GOSSIP_SENDER_MAIN, 2);
-        player->ADD_GOSSIP_ITEM(1, "|TInterface/ICONS/Inv_shield_71:15:15:-18|t[Enchant Shield]", GOSSIP_SENDER_MAIN, 3);
+        player->ADD_GOSSIP_ITEM(1, "|TInterface/ICONS/Inv_mace_116:24:24:-18|t[Enchant Weapon]", GOSSIP_SENDER_MAIN, 1);
+        player->ADD_GOSSIP_ITEM(1, "|TInterface/ICONS/Inv_axe_113:24:24:-18|t[Enchant 2H Weapon]", GOSSIP_SENDER_MAIN, 2);
+        player->ADD_GOSSIP_ITEM(1, "|TInterface/ICONS/Inv_shield_71:24:24:-18|t[Enchant Shield]", GOSSIP_SENDER_MAIN, 3);
         player->ADD_GOSSIP_ITEM(1, "|TInterface/ICONS/inv_helmet_29:24:24:-18|t[Enchant Head]", GOSSIP_SENDER_MAIN, 4);
         player->ADD_GOSSIP_ITEM(1, "|TInterface/ICONS/inv_shoulder_23:24:24:-18|t[Enchant Shoulders]", GOSSIP_SENDER_MAIN, 5);
         player->ADD_GOSSIP_ITEM(1, "|TInterface/ICONS/Inv_misc_cape_18:24:24:-18|t[Enchant Cloak]", GOSSIP_SENDER_MAIN, 6);
