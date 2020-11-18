@@ -1,5 +1,6 @@
-
-# Enchanter NPC #
+# ![logo](https://raw.githubusercontent.com/azerothcore/azerothcore.github.io/master/images/logo-github.png) AzerothCore
+## Enchanter NPC
+- Latest build status with azerothcore: [![Build Status](https://github.com/azerothcore/mod-npc-enchanter/workflows/core-build/badge.svg?branch=master&event=push)](https://github.com/azerothcore/mod-npc-enchanter)
 
 _This module was created for [StygianCore](https://rebrand.ly/stygiancoreproject). A World of Warcraft 3.3.5a Solo/LAN repack by StygianTheBest | [GitHub](https://rebrand.ly/stygiangithub) | [Website](https://rebrand.ly/stygianthebest))_
 _Ported to AzerothCore by gtao725 (https://github.com/gtao725/)_
