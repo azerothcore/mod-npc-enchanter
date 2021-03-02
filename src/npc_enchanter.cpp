@@ -192,44 +192,30 @@ enum Enchants
     ENCHANT_RING_STAMINA = 3791,
 };
 
-uint32 roll;
-uint32 EnchanterAnnounceModule;
-uint32 EnchanterNumPhrases;
-uint32 EnchanterMessageTimer;
-uint32 EnchanterEmoteSpell;
-uint32 EnchanterEmoteCommand;
+static uint32 roll;
+static uint32 EnchanterAnnounceModule;
+static uint32 EnchanterNumPhrases;
+static uint32 EnchanterMessageTimer;
+static uint32 EnchanterEmoteSpell;
+static uint32 EnchanterEmoteCommand;
 
 class EnchanterConfig : public WorldScript
 {
 public:
     EnchanterConfig() : WorldScript("EnchanterConfig_conf") { }
 
-    void OnBeforeConfigLoad(bool reload) override
-    {
-        if (!reload) {
-            std::string conf_path = _CONF_DIR;
-            std::string cfg_file = conf_path + "/npc_enchanter.conf";
+    void OnBeforeConfigLoad(bool /*reload*/) override {
+        EnchanterAnnounceModule = sConfigMgr->GetBoolDefault("Enchanter.Announce", 1);
+        EnchanterNumPhrases = sConfigMgr->GetIntDefault("Enchanter.NumPhrases", 3);
+        EnchanterMessageTimer = sConfigMgr->GetIntDefault("Enchanter.MessageTimer", 60000);
+        EnchanterEmoteSpell = sConfigMgr->GetIntDefault("Enchanter.EmoteSpell", 44940);
+        EnchanterEmoteCommand = sConfigMgr->GetIntDefault("Enchanter.EmoteCommand", 3);
 
-#ifdef WIN32
-            cfg_file = "npc_enchanter.conf";
-#endif
-
-            std::string cfg_def_file = cfg_file + ".dist";
-            sConfigMgr->LoadMore(cfg_def_file.c_str());
-            sConfigMgr->LoadMore(cfg_file.c_str());
-            EnchanterAnnounceModule = sConfigMgr->GetBoolDefault("Enchanter.Announce", 1);
-            EnchanterNumPhrases = sConfigMgr->GetIntDefault("Enchanter.NumPhrases", 3);
-            EnchanterMessageTimer = sConfigMgr->GetIntDefault("Enchanter.MessageTimer", 60000);
-            EnchanterEmoteSpell = sConfigMgr->GetIntDefault("Enchanter.EmoteSpell", 44940);
-            EnchanterEmoteCommand = sConfigMgr->GetIntDefault("Enchanter.EmoteCommand", 3);
-
-            // Enforce Min/Max Time
-            if (EnchanterMessageTimer != 0)
+        // Enforce Min/Max Time
+        if (EnchanterMessageTimer != 0){
+            if (EnchanterMessageTimer < 60000 || EnchanterMessageTimer > 300000)
             {
-                if (EnchanterMessageTimer < 60000 || EnchanterMessageTimer > 300000)
-                {
-                    EnchanterMessageTimer = 60000;
-                }
+                EnchanterMessageTimer = 60000;
             }
         }
     }
@@ -245,8 +231,7 @@ public:
     void OnLogin(Player* player)
     {
         // Announce Module
-        if (EnchanterAnnounceModule)
-        {
+        if (EnchanterAnnounceModule){
             ChatHandler(player->GetSession()).SendSysMessage("This server is running the |cff4CFF00EnchanterNPC |rmodule.");
         }
     }
