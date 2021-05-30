@@ -250,12 +250,12 @@ public:
     npc_enchantment() : CreatureScript("npc_enchantment") { }
 
     // Pick Phrase
-    static string PickPhrase()
+    static std::string PickPhrase()
     {
         // Choose and speak a random phrase to the player
         // Phrases are stored in the config file
         std::string phrase = "";
-        uint32 PhraseNum = urand(1, EnchanterNumPhrases); // How many phrases does the NPC speak? 
+        uint32 PhraseNum = urand(1, EnchanterNumPhrases); // How many phrases does the NPC speak?
         phrase = "EC.P" + std::to_string(PhraseNum);
 
         // Sanitize
