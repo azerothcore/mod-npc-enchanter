@@ -325,7 +325,7 @@ public:
             item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
             if (!item)
             {
-                creature->MonsterWhisper("This enchant requires a 2H weapon to be equipped.", player, 0);
+                creature->Whisper("This enchant requires a 2H weapon to be equipped.", LANG_UNIVERSAL, player);
                 player->PlayerTalkClass->SendCloseGossip();
                 return false;
             }
@@ -341,7 +341,7 @@ public:
             }
             else
             {
-                creature->MonsterWhisper("This enchant requires a 2H weapon to be equipped.", player, 0);
+                creature->Whisper("This enchant requires a 2H weapon to be equipped.", LANG_UNIVERSAL, player);
                 player->PlayerTalkClass->SendCloseGossip();
             }
             player->PlayerTalkClass->SendGossipMenu(100003, creature->GetGUID());
@@ -352,7 +352,7 @@ public:
             item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
             if (!item)
             {
-                creature->MonsterWhisper("This enchant requires a shield to be equipped.", player, 0);
+                creature->Whisper("This enchant requires a shield to be equipped.", LANG_UNIVERSAL, player);
                 player->PlayerTalkClass->SendCloseGossip();
                 return false;
             }
@@ -368,7 +368,7 @@ public:
             }
             else
             {
-                creature->MonsterWhisper("This enchant requires a shield to be equipped.", player, 0);
+                creature->Whisper("This enchant requires a shield to be equipped.", LANG_UNIVERSAL, player);
                 player->PlayerTalkClass->SendGossipMenu(100004, creature->GetGUID());
 
             }
@@ -984,7 +984,7 @@ public:
         if (!item)
         {
             creature->HandleEmoteCommand(EMOTE_ONESHOT_LAUGH);
-            creature->MonsterWhisper("Please equip the item you would like to enchant!", player, 0);
+            creature->Whisper("Please equip the item you would like to enchant!", LANG_UNIVERSAL, player);
             player->PlayerTalkClass->SendCloseGossip();
             return;
         }
@@ -1046,7 +1046,7 @@ public:
                 if (MessageTimer <= diff)
                 {
                     std::string Message = PickPhrase();
-                    me->MonsterSay(Message.c_str(), LANG_UNIVERSAL, NULL);
+                    me->Say(Message.c_str(), LANG_UNIVERSAL);
 
                     // Use gesture?
                     if (EnchanterEmoteCommand != 0)
