@@ -208,10 +208,10 @@ public:
     {
         if (!reload) {
             EnchanterAnnounceModule = sConfigMgr->GetOption<bool>("Enchanter.Announce", 1);
-            EnchanterNumPhrases = sConfigMgr->etOption<uint32>("Enchanter.NumPhrases", 3);
-            EnchanterMessageTimer = sConfigMgr->etOption<uint32>("Enchanter.MessageTimer", 60000);
-            EnchanterEmoteSpell = sConfigMgr->etOption<uint32>("Enchanter.EmoteSpell", 44940);
-            EnchanterEmoteCommand = sConfigMgr->etOption<uint32>("Enchanter.EmoteCommand", 3);
+            EnchanterNumPhrases = sConfigMgr->GetOption<uint32>("Enchanter.NumPhrases", 3);
+            EnchanterMessageTimer = sConfigMgr->GetOption<uint32>("Enchanter.MessageTimer", 60000);
+            EnchanterEmoteSpell = sConfigMgr->GetOption<uint32>("Enchanter.EmoteSpell", 44940);
+            EnchanterEmoteCommand = sConfigMgr->GetOption<uint32>("Enchanter.EmoteCommand", 3);
 
             // Enforce Min/Max Time
             if (EnchanterMessageTimer != 0)
