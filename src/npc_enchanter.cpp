@@ -264,7 +264,7 @@ public:
             phrase = "ERROR! NPC Emote Text Not Found! Check the npc_enchanter.conf!";
         }
 
-        std::string randMsg = sConfigMgr->GetStringDefault(phrase.c_str(), "");
+        std::string randMsg = sConfigMgr->GetOption<std::string>(phrase.c_str(), "");
         return randMsg.c_str();
     }
 
