@@ -207,11 +207,11 @@ public:
     void OnBeforeConfigLoad(bool reload) override
     {
         if (!reload) {
-            EnchanterAnnounceModule = sConfigMgr->GetBoolDefault("Enchanter.Announce", 1);
-            EnchanterNumPhrases = sConfigMgr->GetIntDefault("Enchanter.NumPhrases", 3);
-            EnchanterMessageTimer = sConfigMgr->GetIntDefault("Enchanter.MessageTimer", 60000);
-            EnchanterEmoteSpell = sConfigMgr->GetIntDefault("Enchanter.EmoteSpell", 44940);
-            EnchanterEmoteCommand = sConfigMgr->GetIntDefault("Enchanter.EmoteCommand", 3);
+            EnchanterAnnounceModule = sConfigMgr->GetOption<bool>("Enchanter.Announce", 1);
+            EnchanterNumPhrases = sConfigMgr->etOption<uint32>("Enchanter.NumPhrases", 3);
+            EnchanterMessageTimer = sConfigMgr->etOption<uint32>("Enchanter.MessageTimer", 60000);
+            EnchanterEmoteSpell = sConfigMgr->etOption<uint32>("Enchanter.EmoteSpell", 44940);
+            EnchanterEmoteCommand = sConfigMgr->etOption<uint32>("Enchanter.EmoteCommand", 3);
 
             // Enforce Min/Max Time
             if (EnchanterMessageTimer != 0)
