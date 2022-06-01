@@ -15,7 +15,7 @@ SET
 @Scale		:= 1.0,
 @Type 		:= 7,
 @TypeFlags 	:= 0,
-@FlagsExtra := 2,
+@FlagsExtra := 16777216,
 @AIName		:= "SmartAI",
 @Script 	:= "npc_enchantment";
 
