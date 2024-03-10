@@ -237,8 +237,7 @@ public:
     void OnLogin(Player* player)
     {
         // Announce Module
-        if (
-        && EnchanterAnnounceModule)
+        if (EnchanterAnnounceModule)
         {
             ChatHandler(player->GetSession()).SendSysMessage("This server is running the |cff4CFF00EnchanterNPC |rmodule.");
         }
