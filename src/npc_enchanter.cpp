@@ -152,6 +152,7 @@ enum Enchants
     ENCHANT_GLOVES_AGILITY = 3222,
     ENCHANT_GLOVES_PRECISION = 3234,
     ENCHANT_GLOVES_EXPERTISE = 3231,
+    ENCHANT_GLOVES_HYPERSPEED = 3604,
 
     ENCHANT_BRACERS_MAJOR_STAMINA = 3850,
     ENCHANT_BRACERS_SUPERIOR_SP = 2332,
@@ -184,7 +185,6 @@ enum Enchants
     ENCHANT_BOOTS_GREATER_FORTITUDE = 1075,
     ENCHANT_BOOTS_NITRO_BOOTS = 3606,
     ENCHANT_BOOTS_PYRO_ROCKET = 3603,
-    ENCHANT_BOOTS_HYPERSPEED = 3604,
     ENCHANT_BOOTS_ARMOR_WEBBING = 3860,
 
     ENCHANT_RING_ASSULT = 3839,
@@ -237,7 +237,8 @@ public:
     void OnLogin(Player* player)
     {
         // Announce Module
-        if (EnchanterEnableModule && EnchanterAnnounceModule)
+        if (
+        && EnchanterAnnounceModule)
         {
             ChatHandler(player->GetSession()).SendSysMessage("This server is running the |cff4CFF00EnchanterNPC |rmodule.");
         }
@@ -266,18 +267,24 @@ public:
             phrase = "ERROR! NPC Emote Text Not Found! Check the npc_enchanter.conf!";
         }
 
-        std::string randMsg = sConfigMgr->GetStringDefault(phrase.c_str(), "");
+        std::string randMsg = sConfigMgr->GetOption<std::string>(phrase.c_str(), "");
         return randMsg.c_str();
     }
 
     bool OnGossipHello(Player* player, Creature* creature)
     {
+
         if (!EnchanterEnableModule)
         {
             return false;
         }
-    
-        AddGossipItemFor(player, 1, "|TInterface/ICONS/Inv_mace_116:24:24:-18|t[Enchant Weapon]", GOSSIP_SENDER_MAIN, 1);
+
+        AddGossipItemFor(player, 1, "|TInterface/ICONS/Inv_mace_116:24:24:-18|t[Enchant Main Weapon]", GOSSIP_SENDER_MAIN, 1);
+        if (player->HasSpell(674))
+        {
+            AddGossipItemFor(player, 1, "|TInterface/ICONS/Inv_mace_116:24:24:-18|t[Enchant Offhand Weapon]", GOSSIP_SENDER_MAIN, 13);
+        }
+
         AddGossipItemFor(player, 1, "|TInterface/ICONS/Inv_axe_113:24:24:-18|t[Enchant 2H Weapon]", GOSSIP_SENDER_MAIN, 2);
         AddGossipItemFor(player, 1, "|TInterface/ICONS/Inv_shield_71:24:24:-18|t[Enchant Shield]", GOSSIP_SENDER_MAIN, 3);
         AddGossipItemFor(player, 1, "|TInterface/ICONS/inv_helmet_29:24:24:-18|t[Enchant Head]", GOSSIP_SENDER_MAIN, 4);
@@ -309,7 +316,7 @@ public:
         switch (action)
         {
 
-        case 1: // Enchant Weapon
+        case 1: // Enchant Main Hand Weapon
             if (player->HasSkill(SKILL_ENCHANTING) && player->GetSkillValue(SKILL_ENCHANTING) == 450)
             {
                 AddGossipItemFor(player, 1, "Blade Ward", GOSSIP_SENDER_MAIN, 102);
@@ -485,10 +492,11 @@ public:
             break;
 
         case 9: //Enchant Gloves
-            if (player->HasSkill(SKILL_ENGINEERING) && player->GetSkillValue(SKILL_ENGINEERING) == 450)
+            if (player->HasSkill(SKILL_ENGINEERING) && player->GetSkillValue(SKILL_ENGINEERING) == 400)
             {
-                AddGossipItemFor(player, 1, "16 Critical Strike", GOSSIP_SENDER_MAIN, 178);
+                AddGossipItemFor(player, 1, "Hyperspeed Accelerators", GOSSIP_SENDER_MAIN, 200);
             }
+            AddGossipItemFor(player, 1, "16 Critical Strike", GOSSIP_SENDER_MAIN, 178);
             AddGossipItemFor(player, 1, "2% Threat + 10 Parry", GOSSIP_SENDER_MAIN, 179);
             AddGossipItemFor(player, 1, "44 Attack Power", GOSSIP_SENDER_MAIN, 180);
             AddGossipItemFor(player, 1, "20 Agility", GOSSIP_SENDER_MAIN, 181);
@@ -524,7 +532,6 @@ public:
             {
                 AddGossipItemFor(player, 1, "Nitro Boots", GOSSIP_SENDER_MAIN, 198);
                 AddGossipItemFor(player, 1, "Hand-Mounted Pyro Rocket", GOSSIP_SENDER_MAIN, 199);
-                AddGossipItemFor(player, 1, "Hyperspeed Accelerators", GOSSIP_SENDER_MAIN, 200);
                 AddGossipItemFor(player, 1, "Reticulated Armor Webbing", GOSSIP_SENDER_MAIN, 201);
             }
             AddGossipItemFor(player, GOSSIP_ICON_TALK, "Back", GOSSIP_SENDER_MAIN, 300);
@@ -538,6 +545,46 @@ public:
             AddGossipItemFor(player, 1, "30 Stamina", GOSSIP_SENDER_MAIN, 204);
             AddGossipItemFor(player, GOSSIP_ICON_TALK, "Back", GOSSIP_SENDER_MAIN, 300);
             player->PlayerTalkClass->SendGossipMenu(100013, creature->GetGUID());
+            return true;
+            break;
+
+        case 13: // Enchant 1H Weapon
+            item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
+            if (!item)
+            {
+                creature->Whisper("This enchant requires a weapon to be equipped in offhand.", LANG_UNIVERSAL, player);
+                player->PlayerTalkClass->SendCloseGossip();
+                return false;
+            }
+            if (item->GetTemplate()->InventoryType == INVTYPE_WEAPON)
+            {
+                if (player->HasSkill(SKILL_ENCHANTING) && player->GetSkillValue(SKILL_ENCHANTING) == 450)
+                {
+                    AddGossipItemFor(player, 1, "Blade Ward", GOSSIP_SENDER_MAIN, 207);
+                    AddGossipItemFor(player, 1, "Blood Draining", GOSSIP_SENDER_MAIN, 208);
+                }
+                AddGossipItemFor(player, 1, "26 Agility", GOSSIP_SENDER_MAIN, 205);
+                AddGossipItemFor(player, 1, "45 Spirit", GOSSIP_SENDER_MAIN, 206);
+                AddGossipItemFor(player, 1, "Berserking", GOSSIP_SENDER_MAIN, 209);
+                AddGossipItemFor(player, 1, "25 Hit Rating + 25 Critical", GOSSIP_SENDER_MAIN, 210);
+                AddGossipItemFor(player, 1, "Black Magic", GOSSIP_SENDER_MAIN, 211);
+                AddGossipItemFor(player, 1, "Battlemaster", GOSSIP_SENDER_MAIN, 212);
+                AddGossipItemFor(player, 1, "Icebreaker", GOSSIP_SENDER_MAIN, 213);
+                AddGossipItemFor(player, 1, "Lifeward", GOSSIP_SENDER_MAIN, 214);
+                AddGossipItemFor(player, 1, "50 Stamina", GOSSIP_SENDER_MAIN, 215);
+                AddGossipItemFor(player, 1, "65 Attack Power", GOSSIP_SENDER_MAIN, 216);
+                AddGossipItemFor(player, 1, "63 Spell Power", GOSSIP_SENDER_MAIN, 217);
+                AddGossipItemFor(player, 1, "Mongoose", GOSSIP_SENDER_MAIN, 218);
+                AddGossipItemFor(player, 1, "Executioner", GOSSIP_SENDER_MAIN, 219);
+                AddGossipItemFor(player, GOSSIP_ICON_TALK, "Back", GOSSIP_SENDER_MAIN, 300);
+            }
+            else
+            {
+                creature->Whisper("This enchant requires a weapon to be equipped in offhand.", LANG_UNIVERSAL, player);
+                player->PlayerTalkClass->SendGossipMenu(100004, creature->GetGUID());
+
+            }
+            player->PlayerTalkClass->SendGossipMenu(100004, creature->GetGUID());
             return true;
             break;
 
@@ -942,7 +989,7 @@ public:
             break;
 
         case 200:
-            Enchant(player, creature, player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_FEET), ENCHANT_BOOTS_HYPERSPEED);
+            Enchant(player, creature, player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_HANDS), ENCHANT_GLOVES_HYPERSPEED);
             break;
 
         case 201:
@@ -964,9 +1011,73 @@ public:
             Enchant(player, creature, player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_FINGER2), ENCHANT_RING_STAMINA);
             break;
 
+        case 205:
+            Enchant(player, creature, player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND), ENCHANT_WEP_AGILITY_1H);
+            break;
+
+        case 206:
+            Enchant(player, creature, player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND), ENCHANT_WEP_SPIRIT);
+            break;
+
+        case 207:
+            Enchant(player, creature, player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND), ENCHANT_WEP_BLADE_WARD);
+            break;
+
+        case 208:
+            Enchant(player, creature, player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND), ENCHANT_WEP_BLOOD_DRAINING);
+            break;
+
+        case 209:
+            Enchant(player, creature, player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND), ENCHANT_WEP_BERSERKING);
+            break;
+
+        case 210:
+            Enchant(player, creature, player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND), ENCHANT_WEP_ACCURACY);
+            break;
+
+        case 211:
+            Enchant(player, creature, player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND), ENCHANT_WEP_BLACK_MAGIC);
+            break;
+
+        case 212:
+            Enchant(player, creature, player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND), ENCHANT_WEP_BATTLEMASTER);
+            break;
+
+        case 213:
+            Enchant(player, creature, player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND), ENCHANT_WEP_ICEBREAKER);
+            break;
+
+        case 214:
+            Enchant(player, creature, player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND), ENCHANT_WEP_LIFEWARD);
+            break;
+
+        case 215:
+            Enchant(player, creature, player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND), ENCHANT_WEP_TITANGUARD);
+            break;
+
+        case 216:
+            Enchant(player, creature, player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND), ENCHANT_WEP_POTENCY);
+            break;
+
+        case 217:
+            Enchant(player, creature, player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND), ENCHANT_WEP_MIGHTY_SPELL_POWER);
+            break;
+
+        case 218:
+            Enchant(player, creature, player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND), ENCHANT_2WEP_MONGOOSE);
+            break;
+
+        case 219:
+            Enchant(player, creature, player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND), ENCHANT_WEP_EXECUTIONER);
+            break;
+        
         case 300:
         {
-            AddGossipItemFor(player, 1, "|TInterface/ICONS/Inv_mace_116:24:24:-18|t[Enchant Weapon]", GOSSIP_SENDER_MAIN, 1);
+            AddGossipItemFor(player, 1, "|TInterface/ICONS/Inv_mace_116:24:24:-18|t[Enchant Main Weapon]", GOSSIP_SENDER_MAIN, 1);
+            if (player->HasSpell(674))
+            {
+                AddGossipItemFor(player, 1, "|TInterface/ICONS/Inv_mace_116:24:24:-18|t[Enchant Offhand Weapon]", GOSSIP_SENDER_MAIN, 13);
+            }
             AddGossipItemFor(player, 1, "|TInterface/ICONS/Inv_axe_113:24:24:-18|t[Enchant 2H Weapon]", GOSSIP_SENDER_MAIN, 2);
             AddGossipItemFor(player, 1, "|TInterface/ICONS/Inv_shield_71:24:24:-18|t[Enchant Shield]", GOSSIP_SENDER_MAIN, 3);
             AddGossipItemFor(player, 1, "|TInterface/ICONS/inv_helmet_29:24:24:-18|t[Enchant Head]", GOSSIP_SENDER_MAIN, 4);
@@ -981,7 +1092,7 @@ public:
             if (player->HasSkill(SKILL_ENCHANTING) && player->GetSkillValue(SKILL_ENCHANTING) == 450)
                 AddGossipItemFor(player, 1, "|TInterface/ICONS/Inv_jewelry_ring_85:24:24:-18|t[Enchant Rings]", GOSSIP_SENDER_MAIN, 12);
 
-            player->PlayerTalkClass->SendGossipMenu(100001, creature->GetGUID());
+            player->PlayerTalkClass->SendGossipMenu(601015, creature->GetGUID());
             return true;
             break;
         }
