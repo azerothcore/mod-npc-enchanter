@@ -193,7 +193,8 @@ enum Enchants
 };
 
 uint32 roll;
-uint32 EnchanterAnnounceModule;
+bool EnchanterEnableModule;
+bool EnchanterAnnounceModule;
 uint32 EnchanterNumPhrases;
 uint32 EnchanterMessageTimer;
 uint32 EnchanterEmoteSpell;
@@ -207,6 +208,7 @@ public:
     void OnBeforeConfigLoad(bool reload) override
     {
         if (!reload) {
+            EnchanterEnableModule = sConfigMgr->GetOption<bool>("Enchanter.Enable", 1);
             EnchanterAnnounceModule = sConfigMgr->GetOption<bool>("Enchanter.Announce", 1);
             EnchanterNumPhrases = sConfigMgr->GetOption<uint32>("Enchanter.NumPhrases", 3);
             EnchanterMessageTimer = sConfigMgr->GetOption<uint32>("Enchanter.MessageTimer", 60000);
@@ -270,11 +272,18 @@ public:
 
     bool OnGossipHello(Player* player, Creature* creature)
     {
+
+        if (!EnchanterEnableModule)
+        {
+            return false;
+        }
+
         AddGossipItemFor(player, 1, "|TInterface/ICONS/Inv_mace_116:24:24:-18|t[Enchant Main Weapon]", GOSSIP_SENDER_MAIN, 1);
         if (player->HasSpell(674))
         {
             AddGossipItemFor(player, 1, "|TInterface/ICONS/Inv_mace_116:24:24:-18|t[Enchant Offhand Weapon]", GOSSIP_SENDER_MAIN, 13);
         }
+
         AddGossipItemFor(player, 1, "|TInterface/ICONS/Inv_axe_113:24:24:-18|t[Enchant 2H Weapon]", GOSSIP_SENDER_MAIN, 2);
         AddGossipItemFor(player, 1, "|TInterface/ICONS/Inv_shield_71:24:24:-18|t[Enchant Shield]", GOSSIP_SENDER_MAIN, 3);
         AddGossipItemFor(player, 1, "|TInterface/ICONS/inv_helmet_29:24:24:-18|t[Enchant Head]", GOSSIP_SENDER_MAIN, 4);
@@ -295,6 +304,11 @@ public:
 
     bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
     {
+        if (!EnchanterEnableModule)
+        {
+            return false;
+        }
+    
         Item * item;
         player->PlayerTalkClass->ClearMenus();
 
@@ -1115,21 +1129,20 @@ public:
         if (roll > 0 && roll < 33)
         {
             player->GetSession()->SendNotification("|cff00ff00Beauregard's bony finger crackles with energy when he touches |cffDA70D6%s|cff00ff00!", item->GetTemplate()->Name1.c_str());
-            creature->HandleEmoteCommand(EMOTE_ONESHOT_POINT);
-            player->PlayerTalkClass->SendCloseGossip();
+            // creature->HandleEmoteCommand(EMOTE_ONESHOT_POINT);
         }
         else if (roll > 33 && roll < 75)
         {
             player->GetSession()->SendNotification("|cff00ff00Beauregard holds |cffDA70D6%s |cff00ff00up in the air and utters a strange incantation!", item->GetTemplate()->Name1.c_str());
-            creature->HandleEmoteCommand(EMOTE_ONESHOT_CHEER);
-            player->PlayerTalkClass->SendCloseGossip();
+            // creature->HandleEmoteCommand(EMOTE_ONESHOT_CHEER);
         }
         else
         {
             player->GetSession()->SendNotification("|cff00ff00Beauregard concentrates deeply while waving his wand over |cffDA70D6%s|cff00ff00!", item->GetTemplate()->Name1.c_str());
-            creature->HandleEmoteCommand(EMOTE_ONESHOT_WAVE);
-            player->PlayerTalkClass->SendCloseGossip();
+            // creature->HandleEmoteCommand(EMOTE_ONESHOT_WAVE);
         }
+        creature->CastSpell(player, 12512); // enchantment visual
+        player->PlayerTalkClass->SendCloseGossip();
     }
 
     // Passive Emotes
@@ -1137,24 +1150,30 @@ public:
     {
         NPC_PassiveAI(Creature * creature) : ScriptedAI(creature) { }
 
-        uint32 MessageTimer;
+        uint32 MessageTimer = 0;
 
         // Called once when client is loaded
         void Reset()
         {
-            MessageTimer = urand(EnchanterMessageTimer, 300000); // 1-5 minutes
+            if (EnchanterMessageTimer != 0)
+            {
+                MessageTimer = urand(EnchanterMessageTimer, 300000); // 1-5 minutes
+            }
         }
 
         // Called at World update tick
         void UpdateAI(const uint32 diff)
         {
             // If Enabled
-            if (EnchanterMessageTimer != 0)
+            if (EnchanterEnableModule && EnchanterMessageTimer != 0)
             {
                 if (MessageTimer <= diff)
                 {
-                    std::string Message = PickPhrase();
-                    me->Say(Message.c_str(), LANG_UNIVERSAL);
+                    if (EnchanterNumPhrases > 0)
+                    {
+                        std::string Message = PickPhrase();
+                        me->Say(Message.c_str(), LANG_UNIVERSAL);
+                    }
 
                     // Use gesture?
                     if (EnchanterEmoteCommand != 0)
