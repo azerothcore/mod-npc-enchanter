@@ -12,6 +12,14 @@
 Enchanter.Enable = 1
 
 # -------------------------------------------------------------------------------------
+#  Enable special enchantments such as 100 AP & 36 Crit for Leg
+#  that is not available for players normaly.
+#  Enable : 1
+#  Disable: 0
+# -------------------------------------------------------------------------------------
+Enchanter.EnableSpecialEnchantments = 0
+
+# -------------------------------------------------------------------------------------
 #  Announce the module when the player logs in?
 #  Enable : 1
 #  Disable: 0
