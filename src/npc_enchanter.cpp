@@ -194,6 +194,7 @@ enum Enchants
 
 uint32 roll;
 bool EnchanterEnableModule;
+bool EnchanterEnableSpecialEnchantments;
 bool EnchanterAnnounceModule;
 uint32 EnchanterNumPhrases;
 uint32 EnchanterMessageTimer;
@@ -203,12 +204,14 @@ uint32 EnchanterEmoteCommand;
 class EnchanterConfig : public WorldScript
 {
 public:
-    EnchanterConfig() : WorldScript("EnchanterConfig_conf") { }
+    EnchanterConfig() : WorldScript("EnchanterConfig_conf") {}
 
     void OnBeforeConfigLoad(bool reload) override
     {
-        if (!reload) {
+        if (!reload)
+        {
             EnchanterEnableModule = sConfigMgr->GetOption<bool>("Enchanter.Enable", 1);
+            EnchanterEnableSpecialEnchantments = sConfigMgr->GetOption<bool>("Enchanter.EnableSpecialEnchantments", 0);
             EnchanterAnnounceModule = sConfigMgr->GetOption<bool>("Enchanter.Announce", 1);
             EnchanterNumPhrases = sConfigMgr->GetOption<uint32>("Enchanter.NumPhrases", 3);
             EnchanterMessageTimer = sConfigMgr->GetOption<uint32>("Enchanter.MessageTimer", 60000);
@@ -231,10 +234,9 @@ class EnchanterAnnounce : public PlayerScript
 {
 
 public:
-
     EnchanterAnnounce() : PlayerScript("EnchanterAnnounce") {}
 
-    void OnLogin(Player* player)
+    void OnLogin(Player *player)
     {
         // Announce Module
         if (EnchanterAnnounceModule)
@@ -248,8 +250,7 @@ class npc_enchantment : public CreatureScript
 {
 
 public:
-
-    npc_enchantment() : CreatureScript("npc_enchantment") { }
+    npc_enchantment() : CreatureScript("npc_enchantment") {}
 
     // Pick Phrase
     static std::string PickPhrase()
@@ -270,7 +271,7 @@ public:
         return randMsg.c_str();
     }
 
-    bool OnGossipHello(Player* player, Creature* creature)
+    bool OnGossipHello(Player *player, Creature *creature)
     {
 
         if (!EnchanterEnableModule)
@@ -302,14 +303,14 @@ public:
         return true;
     }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
+    bool OnGossipSelect(Player *player, Creature *creature, uint32 /*sender*/, uint32 action)
     {
         if (!EnchanterEnableModule)
         {
             return false;
         }
-    
-        Item * item;
+
+        Item *item;
         player->PlayerTalkClass->ClearMenus();
 
         switch (action)
@@ -388,7 +389,6 @@ public:
             {
                 creature->Whisper("This enchant requires a shield to be equipped.", LANG_UNIVERSAL, player);
                 player->PlayerTalkClass->SendGossipMenu(100004, creature->GetGUID());
-
             }
             player->PlayerTalkClass->SendGossipMenu(100004, creature->GetGUID());
             return true;
@@ -455,7 +455,7 @@ public:
             return true;
             break;
 
-        case 7: //Enchant chest
+        case 7: // Enchant chest
             AddGossipItemFor(player, 1, "+10 All Stats", GOSSIP_SENDER_MAIN, 158);
             AddGossipItemFor(player, 1, "225 Health", GOSSIP_SENDER_MAIN, 159);
             AddGossipItemFor(player, 1, "10 Mp5", GOSSIP_SENDER_MAIN, 160);
@@ -466,7 +466,7 @@ public:
             return true;
             break;
 
-        case 8: //Enchant Bracers
+        case 8: // Enchant Bracers
             AddGossipItemFor(player, 1, "40 Stamina", GOSSIP_SENDER_MAIN, 163);
             AddGossipItemFor(player, 1, "30 Spell Power", GOSSIP_SENDER_MAIN, 164);
             AddGossipItemFor(player, 1, "50 Attack Power", GOSSIP_SENDER_MAIN, 165);
@@ -490,7 +490,7 @@ public:
             return true;
             break;
 
-        case 9: //Enchant Gloves
+        case 9: // Enchant Gloves
             if (player->HasSkill(SKILL_ENGINEERING) && player->GetSkillValue(SKILL_ENGINEERING) >= 400)
             {
                 AddGossipItemFor(player, 1, "Hyperspeed Accelerators", GOSSIP_SENDER_MAIN, 200);
@@ -506,20 +506,23 @@ public:
             return true;
             break;
 
-        case 10: //Enchant legs
+        case 10: // Enchant legs
             AddGossipItemFor(player, 1, "40 Resilience + 28 Stamina", GOSSIP_SENDER_MAIN, 184);
             AddGossipItemFor(player, 1, "55 Stamina + 22 Agility", GOSSIP_SENDER_MAIN, 185);
             AddGossipItemFor(player, 1, "75 Attack Power + 22 Critical", GOSSIP_SENDER_MAIN, 186);
             AddGossipItemFor(player, 1, "50 Spell Power + 22 Spirit", GOSSIP_SENDER_MAIN, 187);
             AddGossipItemFor(player, 1, "50 Spell Power + 30 Stamina", GOSSIP_SENDER_MAIN, 188);
             AddGossipItemFor(player, 1, "72 Stamina + 35 Agility", GOSSIP_SENDER_MAIN, 189);
-            AddGossipItemFor(player, 1, "100 Attack Power + 36 Critical", GOSSIP_SENDER_MAIN, 190);
+            if (EnchanterEnableSpecialEnchantments)
+            {
+                AddGossipItemFor(player, 1, "100 Attack Power + 36 Critical", GOSSIP_SENDER_MAIN, 190);
+            }
             AddGossipItemFor(player, GOSSIP_ICON_TALK, "Back", GOSSIP_SENDER_MAIN, 300);
             player->PlayerTalkClass->SendGossipMenu(100011, creature->GetGUID());
             return true;
             break;
 
-        case 11: //Enchant Boots
+        case 11: // Enchant Boots
             AddGossipItemFor(player, 1, "32 Attack Power", GOSSIP_SENDER_MAIN, 191);
             AddGossipItemFor(player, 1, "15 Stamina + Minor Speed Increase", GOSSIP_SENDER_MAIN, 192);
             AddGossipItemFor(player, 1, "16 Agility", GOSSIP_SENDER_MAIN, 193);
@@ -538,7 +541,7 @@ public:
             return true;
             break;
 
-        case 12: //Enchant rings
+        case 12: // Enchant rings
             AddGossipItemFor(player, 1, "40 Attack Power", GOSSIP_SENDER_MAIN, 202);
             AddGossipItemFor(player, 1, "23 Spell Power", GOSSIP_SENDER_MAIN, 203);
             AddGossipItemFor(player, 1, "30 Stamina", GOSSIP_SENDER_MAIN, 204);
@@ -581,7 +584,6 @@ public:
             {
                 creature->Whisper("This enchant requires a weapon to be equipped in offhand.", LANG_UNIVERSAL, player);
                 player->PlayerTalkClass->SendGossipMenu(100004, creature->GetGUID());
-
             }
             player->PlayerTalkClass->SendGossipMenu(100004, creature->GetGUID());
             return true;
@@ -1069,7 +1071,7 @@ public:
         case 219:
             Enchant(player, creature, player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND), ENCHANT_WEP_EXECUTIONER);
             break;
-        
+
         case 300:
         {
             AddGossipItemFor(player, 1, "|TInterface/ICONS/Inv_mace_116:24:24:-18|t[Enchant Main Weapon]", GOSSIP_SENDER_MAIN, 1);
@@ -1101,7 +1103,7 @@ public:
         return true;
     }
 
-    void Enchant(Player* player, Creature* creature, Item* item, uint32 enchantid)
+    void Enchant(Player *player, Creature *creature, Item *item, uint32 enchantid)
     {
         if (!item)
         {
@@ -1113,7 +1115,7 @@ public:
 
         if (!enchantid)
         {
-        	ChatHandler(player->GetSession()).SendNotification("Something went wrong in the code. It has been logged for developers and will be looked into, sorry for the inconvenience.");
+            ChatHandler(player->GetSession()).SendNotification("Something went wrong in the code. It has been logged for developers and will be looked into, sorry for the inconvenience.");
             player->PlayerTalkClass->SendCloseGossip();
             creature->HandleEmoteCommand(EMOTE_ONESHOT_LAUGH);
             return;
@@ -1148,7 +1150,7 @@ public:
     // Passive Emotes
     struct NPC_PassiveAI : public ScriptedAI
     {
-        NPC_PassiveAI(Creature * creature) : ScriptedAI(creature) { }
+        NPC_PassiveAI(Creature *creature) : ScriptedAI(creature) {}
 
         uint32 MessageTimer = 0;
 
@@ -1189,13 +1191,16 @@ public:
 
                     MessageTimer = urand(EnchanterMessageTimer, 300000);
                 }
-                else { MessageTimer -= diff; }
+                else
+                {
+                    MessageTimer -= diff;
+                }
             }
         }
     };
 
     // CREATURE AI
-    CreatureAI * GetAI(Creature * creature) const
+    CreatureAI *GetAI(Creature *creature) const
     {
         return new NPC_PassiveAI(creature);
     }
