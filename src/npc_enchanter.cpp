@@ -54,7 +54,7 @@ This code and content is released under the [GNU AGPL v3](https://github.com/aze
 #include "CombatAI.h"
 #include "Configuration/Config.h"
 #include "DBCStores.h"
-#include "DBCStructure.h
+#include "DBCStructure.h"
 #include "GameEventMgr.h"
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
