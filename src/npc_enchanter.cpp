@@ -48,27 +48,27 @@ This code and content is released under the [GNU AGPL v3](https://github.com/aze
 
 */
 
-#include "ScriptMgr.h"
-#include "Configuration/Config.h"
 #include "Cell.h"
 #include "CellImpl.h"
+#include "Chat.h"
+#include "CombatAI.h"
+#include "Configuration/Config.h"
+#include "DBCStores.h"
+#include "DBCStructure.h"
 #include "GameEventMgr.h"
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
-#include "Unit.h"
 #include "GameObject.h"
+#include "InstanceScript.h"
+#include "ObjectMgr.h"
+#include "PassiveAI.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
-#include "InstanceScript.h"
-#include "CombatAI.h"
-#include "PassiveAI.h"
-#include "Chat.h"
-#include "DBCStructure.h"
-#include "DBCStores.h"
-#include "ObjectMgr.h"
+#include "ScriptMgr.h"
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
-#include "Player.h"
+#include "Unit.h"
 
 enum Enchants
 {
@@ -203,7 +203,9 @@ uint32 EnchanterEmoteCommand;
 class EnchanterConfig : public WorldScript
 {
 public:
-    EnchanterConfig() : WorldScript("EnchanterConfig_conf") { }
+    EnchanterConfig() : WorldScript("EnchanterConfig_conf", {
+        WORLDHOOK_ON_BEFORE_CONFIG_LOAD
+    }) { }
 
     void OnBeforeConfigLoad(bool reload) override
     {
@@ -217,12 +219,8 @@ public:
 
             // Enforce Min/Max Time
             if (EnchanterMessageTimer != 0)
-            {
                 if (EnchanterMessageTimer < 60000 || EnchanterMessageTimer > 300000)
-                {
                     EnchanterMessageTimer = 60000;
-                }
-            }
         }
     }
 };
@@ -232,15 +230,15 @@ class EnchanterAnnounce : public PlayerScript
 
 public:
 
-    EnchanterAnnounce() : PlayerScript("EnchanterAnnounce") {}
+    EnchanterAnnounce() : PlayerScript("EnchanterAnnounce", {
+        PLAYERHOOK_ON_LOGIN
+    }) {}
 
-    void OnLogin(Player* player)
+    void OnPlayerLogin(Player* player)
     {
         // Announce Module
         if (EnchanterAnnounceModule)
-        {
             ChatHandler(player->GetSession()).SendSysMessage("This server is running the |cff4CFF00EnchanterNPC |rmodule.");
-        }
     }
 };
 
@@ -262,9 +260,7 @@ public:
 
         // Sanitize
         if (phrase == "")
-        {
             phrase = "ERROR! NPC Emote Text Not Found! Check the npc_enchanter.conf!";
-        }
 
         std::string randMsg = sConfigMgr->GetOption<std::string>(phrase.c_str(), "");
         return randMsg.c_str();
@@ -274,15 +270,11 @@ public:
     {
 
         if (!EnchanterEnableModule)
-        {
             return false;
-        }
 
         AddGossipItemFor(player, 1, "|TInterface/ICONS/Inv_mace_116:24:24:-18|t[Enchant Main Weapon]", GOSSIP_SENDER_MAIN, 1);
         if (player->HasSpell(674))
-        {
             AddGossipItemFor(player, 1, "|TInterface/ICONS/Inv_mace_116:24:24:-18|t[Enchant Offhand Weapon]", GOSSIP_SENDER_MAIN, 13);
-        }
 
         AddGossipItemFor(player, 1, "|TInterface/ICONS/Inv_axe_113:24:24:-18|t[Enchant 2H Weapon]", GOSSIP_SENDER_MAIN, 2);
         AddGossipItemFor(player, 1, "|TInterface/ICONS/Inv_shield_71:24:24:-18|t[Enchant Shield]", GOSSIP_SENDER_MAIN, 3);
@@ -305,9 +297,7 @@ public:
     bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
     {
         if (!EnchanterEnableModule)
-        {
             return false;
-        }
     
         Item * item;
         player->PlayerTalkClass->ClearMenus();
@@ -1156,9 +1146,7 @@ public:
         void Reset()
         {
             if (EnchanterMessageTimer != 0)
-            {
                 MessageTimer = urand(EnchanterMessageTimer, 300000); // 1-5 minutes
-            }
         }
 
         // Called at World update tick
@@ -1177,15 +1165,11 @@ public:
 
                     // Use gesture?
                     if (EnchanterEmoteCommand != 0)
-                    {
                         me->HandleEmoteCommand(EnchanterEmoteCommand);
-                    }
 
                     // Alert players?
                     if (EnchanterEmoteSpell != 0)
-                    {
                         me->CastSpell(me, EnchanterEmoteSpell);
-                    }
 
                     MessageTimer = urand(EnchanterMessageTimer, 300000);
                 }
