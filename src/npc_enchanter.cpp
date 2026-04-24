@@ -335,7 +335,7 @@ public:
             {
                 creature->Whisper("This enchant requires a 2H weapon to be equipped.", LANG_UNIVERSAL, player);
                 player->PlayerTalkClass->SendCloseGossip();
-                return false;
+                return true;
             }
             if (item->GetTemplate()->InventoryType == INVTYPE_2HWEAPON)
             {
@@ -351,6 +351,7 @@ public:
             {
                 creature->Whisper("This enchant requires a 2H weapon to be equipped.", LANG_UNIVERSAL, player);
                 player->PlayerTalkClass->SendCloseGossip();
+                return true;
             }
             player->PlayerTalkClass->SendGossipMenu(100003, creature->GetGUID());
             return true;
@@ -362,14 +363,14 @@ public:
             {
                 creature->Whisper("This enchant requires a shield to be equipped.", LANG_UNIVERSAL, player);
                 player->PlayerTalkClass->SendCloseGossip();
-                return false;
+                return true;
             }
             if (item->GetTemplate()->InventoryType == INVTYPE_SHIELD)
             {
                 AddGossipItemFor(player, 1, "20 Defense", GOSSIP_SENDER_MAIN, 118);
                 AddGossipItemFor(player, 1, "25 Intellect", GOSSIP_SENDER_MAIN, 119);
                 AddGossipItemFor(player, 1, "12 Resilience", GOSSIP_SENDER_MAIN, 120);
-                AddGossipItemFor(player, 1, "36 Block", GOSSIP_SENDER_MAIN, 121);
+                AddGossipItemFor(player, 1, "15 Block", GOSSIP_SENDER_MAIN, 121);
                 AddGossipItemFor(player, 1, "18 Stamina", GOSSIP_SENDER_MAIN, 122);
                 AddGossipItemFor(player, 1, "81 Block + 50% Less Disarm", GOSSIP_SENDER_MAIN, 123);
                 AddGossipItemFor(player, GOSSIP_ICON_TALK, "Back", GOSSIP_SENDER_MAIN, 300);
@@ -377,8 +378,8 @@ public:
             else
             {
                 creature->Whisper("This enchant requires a shield to be equipped.", LANG_UNIVERSAL, player);
-                player->PlayerTalkClass->SendGossipMenu(100004, creature->GetGUID());
-
+                player->PlayerTalkClass->SendCloseGossip();
+                return true;
             }
             player->PlayerTalkClass->SendGossipMenu(100004, creature->GetGUID());
             return true;
@@ -543,9 +544,9 @@ public:
             {
                 creature->Whisper("This enchant requires a weapon to be equipped in offhand.", LANG_UNIVERSAL, player);
                 player->PlayerTalkClass->SendCloseGossip();
-                return false;
+                return true;
             }
-            if (item->GetTemplate()->InventoryType == INVTYPE_WEAPON)
+            if (item->GetTemplate()->Class == ITEM_CLASS_WEAPON)
             {
                 if (player->HasSkill(SKILL_ENCHANTING) && player->GetSkillValue(SKILL_ENCHANTING) == 450)
                 {
@@ -570,8 +571,8 @@ public:
             else
             {
                 creature->Whisper("This enchant requires a weapon to be equipped in offhand.", LANG_UNIVERSAL, player);
-                player->PlayerTalkClass->SendGossipMenu(100004, creature->GetGUID());
-
+                player->PlayerTalkClass->SendCloseGossip();
+                return true;
             }
             player->PlayerTalkClass->SendGossipMenu(100004, creature->GetGUID());
             return true;
@@ -662,7 +663,7 @@ public:
             break;
 
         case 121:
-            Enchant(player, creature, player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND), ENCHANT_SHIELD_TITANIUM_PLATING);
+            Enchant(player, creature, player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND), ENCHANT_SHIELD_BLOCK);
             break;
 
         case 122:
@@ -670,7 +671,7 @@ public:
             break;
 
         case 123:
-            Enchant(player, creature, player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND), ENCHANT_SHIELD_TOUGHSHIELD);
+            Enchant(player, creature, player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND), ENCHANT_SHIELD_TITANIUM_PLATING);
             break;
 
         case 124:
@@ -1116,19 +1117,20 @@ public:
         item->SetEnchantment(PERM_ENCHANTMENT_SLOT, enchantid, 0, 0);
 
         // Random enchantment notification
+        std::string const& itemName = item->GetTemplate()->Name1;
         if (roll > 0 && roll < 33)
         {
-            ChatHandler(player->GetSession()).SendNotification("|cff00ff00Beauregard's bony finger crackles with energy when he touches |cffDA70D6%s|cff00ff00!", item->GetTemplate()->Name1.c_str());
+            ChatHandler(player->GetSession()).SendNotification(fmt::format("|cff00ff00Beauregard's bony finger crackles with energy when he touches |cffDA70D6{}|cff00ff00!", itemName));
             // creature->HandleEmoteCommand(EMOTE_ONESHOT_POINT);
         }
         else if (roll > 33 && roll < 75)
         {
-            ChatHandler(player->GetSession()).SendNotification("|cff00ff00Beauregard holds |cffDA70D6%s |cff00ff00up in the air and utters a strange incantation!", item->GetTemplate()->Name1.c_str());
+            ChatHandler(player->GetSession()).SendNotification(fmt::format("|cff00ff00Beauregard holds |cffDA70D6{} |cff00ff00up in the air and utters a strange incantation!", itemName));
             // creature->HandleEmoteCommand(EMOTE_ONESHOT_CHEER);
         }
         else
         {
-            ChatHandler(player->GetSession()).SendNotification("|cff00ff00Beauregard concentrates deeply while waving his wand over |cffDA70D6%s|cff00ff00!", item->GetTemplate()->Name1.c_str());
+            ChatHandler(player->GetSession()).SendNotification(fmt::format("|cff00ff00Beauregard concentrates deeply while waving his wand over |cffDA70D6{}|cff00ff00!", itemName));
             // creature->HandleEmoteCommand(EMOTE_ONESHOT_WAVE);
         }
         creature->CastSpell(player, 12512); // enchantment visual
