@@ -192,6 +192,17 @@ enum Enchants
     ENCHANT_RING_STAMINA = 3791,
 };
 
+// Expansion tiers used to gate enchants by player level when progression mode is enabled.
+// Vanilla  = enchants from original WoW (default available at levels 1-60)
+// TBC      = enchants introduced in The Burning Crusade (default available at level 61+)
+// Wrath    = enchants introduced in Wrath of the Lich King (default available at level 71+)
+enum ExpansionTier
+{
+    EXPANSION_VANILLA = 0,
+    EXPANSION_TBC     = 1,
+    EXPANSION_WRATH   = 2,
+};
+
 uint32 roll;
 bool EnchanterEnableModule;
 bool EnchanterAnnounceModule;
@@ -199,6 +210,33 @@ uint32 EnchanterNumPhrases;
 uint32 EnchanterMessageTimer;
 uint32 EnchanterEmoteSpell;
 uint32 EnchanterEmoteCommand;
+bool EnchanterProgressionEnable;
+uint32 EnchanterTBCLevel;
+uint32 EnchanterWrathLevel;
+
+// Returns true if the player's level qualifies them to see enchants of the given expansion tier.
+// When progression mode is disabled this always returns true.
+static bool CanSeeExpansion(Player* player, ExpansionTier tier)
+{
+    if (!EnchanterProgressionEnable)
+        return true;
+
+    uint32 level = player->GetLevel();
+    switch (tier)
+    {
+        case EXPANSION_VANILLA: return true;
+        case EXPANSION_TBC:     return level >= EnchanterTBCLevel;
+        case EXPANSION_WRATH:   return level >= EnchanterWrathLevel;
+    }
+    return true;
+}
+
+// Adds a gossip item only if the player's level meets the tier threshold.
+static void AddEnchantGossip(Player* player, ExpansionTier tier, const char* text, uint32 action)
+{
+    if (CanSeeExpansion(player, tier))
+        AddGossipItemFor(player, 1, text, GOSSIP_SENDER_MAIN, action);
+}
 
 class EnchanterConfig : public WorldScript
 {
@@ -216,6 +254,9 @@ public:
             EnchanterMessageTimer = sConfigMgr->GetOption<uint32>("Enchanter.MessageTimer", 60000);
             EnchanterEmoteSpell = sConfigMgr->GetOption<uint32>("Enchanter.EmoteSpell", 44940);
             EnchanterEmoteCommand = sConfigMgr->GetOption<uint32>("Enchanter.EmoteCommand", 3);
+            EnchanterProgressionEnable = sConfigMgr->GetOption<bool>("Enchanter.Progression.Enable", false);
+            EnchanterTBCLevel = sConfigMgr->GetOption<uint32>("Enchanter.Progression.TBCLevel", 61);
+            EnchanterWrathLevel = sConfigMgr->GetOption<uint32>("Enchanter.Progression.WrathLevel", 71);
 
             // Enforce Min/Max Time
             if (EnchanterMessageTimer != 0)
@@ -266,12 +307,9 @@ public:
         return randMsg.c_str();
     }
 
-    bool OnGossipHello(Player* player, Creature* creature)
+    // Builds the top-level enchant category menu. Called by OnGossipHello and the Back action.
+    static void BuildMainMenu(Player* player, Creature* creature)
     {
-
-        if (!EnchanterEnableModule)
-            return false;
-
         AddGossipItemFor(player, 1, "|TInterface/ICONS/Inv_mace_116:24:24:-18|t[Enchant Main Weapon]", GOSSIP_SENDER_MAIN, 1);
         if (player->HasSpell(674))
             AddGossipItemFor(player, 1, "|TInterface/ICONS/Inv_mace_116:24:24:-18|t[Enchant Offhand Weapon]", GOSSIP_SENDER_MAIN, 13);
@@ -287,10 +325,19 @@ public:
         AddGossipItemFor(player, 1, "|TInterface/ICONS/inv_pants_11:24:24:-18|t[Enchant Legs]", GOSSIP_SENDER_MAIN, 10);
         AddGossipItemFor(player, 1, "|TInterface/ICONS/inv_boots_05:24:24:-18|t[Enchant Boots]", GOSSIP_SENDER_MAIN, 11);
 
-        if (player->HasSkill(SKILL_ENCHANTING) && player->GetSkillValue(SKILL_ENCHANTING) == 450)
+        // Ring enchants are Wrath-era and require max Enchanting — hide both skill and level gates together.
+        if (player->HasSkill(SKILL_ENCHANTING) && player->GetSkillValue(SKILL_ENCHANTING) == 450 && CanSeeExpansion(player, EXPANSION_WRATH))
             AddGossipItemFor(player, 1, "|TInterface/ICONS/Inv_jewelry_ring_85:24:24:-18|t[Enchant Rings]", GOSSIP_SENDER_MAIN, 12);
 
         player->PlayerTalkClass->SendGossipMenu(601015, creature->GetGUID());
+    }
+
+    bool OnGossipHello(Player* player, Creature* creature)
+    {
+        if (!EnchanterEnableModule)
+            return false;
+
+        BuildMainMenu(player, creature);
         return true;
     }
 
@@ -298,7 +345,7 @@ public:
     {
         if (!EnchanterEnableModule)
             return false;
-    
+
         Item * item;
         player->PlayerTalkClass->ClearMenus();
 
@@ -308,22 +355,22 @@ public:
         case 1: // Enchant Main Hand Weapon
             if (player->HasSkill(SKILL_ENCHANTING) && player->GetSkillValue(SKILL_ENCHANTING) == 450)
             {
-                AddGossipItemFor(player, 1, "Blade Ward", GOSSIP_SENDER_MAIN, 102);
-                AddGossipItemFor(player, 1, "Blood Draining", GOSSIP_SENDER_MAIN, 103);
+                AddEnchantGossip(player, EXPANSION_WRATH, "Blade Ward", 102);
+                AddEnchantGossip(player, EXPANSION_WRATH, "Blood Draining", 103);
             }
-            AddGossipItemFor(player, 1, "26 Agility", GOSSIP_SENDER_MAIN, 100);
-            AddGossipItemFor(player, 1, "45 Spirit", GOSSIP_SENDER_MAIN, 101);
-            AddGossipItemFor(player, 1, "Berserking", GOSSIP_SENDER_MAIN, 104);
-            AddGossipItemFor(player, 1, "25 Hit Rating + 25 Critical", GOSSIP_SENDER_MAIN, 105);
-            AddGossipItemFor(player, 1, "Black Magic", GOSSIP_SENDER_MAIN, 106);
-            AddGossipItemFor(player, 1, "Battlemaster", GOSSIP_SENDER_MAIN, 107);
-            AddGossipItemFor(player, 1, "Icebreaker", GOSSIP_SENDER_MAIN, 108);
-            AddGossipItemFor(player, 1, "Lifeward", GOSSIP_SENDER_MAIN, 109);
-            AddGossipItemFor(player, 1, "50 Stamina", GOSSIP_SENDER_MAIN, 110);
-            AddGossipItemFor(player, 1, "65 Attack Power", GOSSIP_SENDER_MAIN, 111);
-            AddGossipItemFor(player, 1, "63 Spell Power", GOSSIP_SENDER_MAIN, 112);
-            AddGossipItemFor(player, 1, "Mongoose", GOSSIP_SENDER_MAIN, 113);
-            AddGossipItemFor(player, 1, "Executioner", GOSSIP_SENDER_MAIN, 114);
+            AddEnchantGossip(player, EXPANSION_VANILLA, "26 Agility", 100);
+            AddEnchantGossip(player, EXPANSION_WRATH,   "45 Spirit", 101);
+            AddEnchantGossip(player, EXPANSION_WRATH,   "Berserking", 104);
+            AddEnchantGossip(player, EXPANSION_WRATH,   "25 Hit Rating + 25 Critical", 105);
+            AddEnchantGossip(player, EXPANSION_WRATH,   "Black Magic", 106);
+            AddEnchantGossip(player, EXPANSION_TBC,     "Battlemaster", 107);
+            AddEnchantGossip(player, EXPANSION_WRATH,   "Icebreaker", 108);
+            AddEnchantGossip(player, EXPANSION_WRATH,   "Lifeward", 109);
+            AddEnchantGossip(player, EXPANSION_WRATH,   "50 Stamina", 110);
+            AddEnchantGossip(player, EXPANSION_WRATH,   "65 Attack Power", 111);
+            AddEnchantGossip(player, EXPANSION_WRATH,   "63 Spell Power", 112);
+            AddEnchantGossip(player, EXPANSION_TBC,     "Mongoose", 113);
+            AddEnchantGossip(player, EXPANSION_TBC,     "Executioner", 114);
             AddGossipItemFor(player, GOSSIP_ICON_TALK, "Back", GOSSIP_SENDER_MAIN, 300);
             player->PlayerTalkClass->SendGossipMenu(100002, creature->GetGUID());
             return true;
@@ -339,12 +386,12 @@ public:
             }
             if (item->GetTemplate()->InventoryType == INVTYPE_2HWEAPON)
             {
-                AddGossipItemFor(player, 1, "Berserking", GOSSIP_SENDER_MAIN, 104);
-                AddGossipItemFor(player, 1, "Mongoose", GOSSIP_SENDER_MAIN, 113);
-                AddGossipItemFor(player, 1, "Executioner", GOSSIP_SENDER_MAIN, 114);
-                AddGossipItemFor(player, 1, "81 Spell Power", GOSSIP_SENDER_MAIN, 115);
-                AddGossipItemFor(player, 1, "35 Agility", GOSSIP_SENDER_MAIN, 116);
-                AddGossipItemFor(player, 1, "110 Attack Power", GOSSIP_SENDER_MAIN, 117);
+                AddEnchantGossip(player, EXPANSION_WRATH, "Berserking", 104);
+                AddEnchantGossip(player, EXPANSION_TBC,   "Mongoose", 113);
+                AddEnchantGossip(player, EXPANSION_TBC,   "Executioner", 114);
+                AddEnchantGossip(player, EXPANSION_WRATH, "81 Spell Power", 115);
+                AddEnchantGossip(player, EXPANSION_TBC,   "35 Agility", 116);
+                AddEnchantGossip(player, EXPANSION_WRATH, "110 Attack Power", 117);
                 AddGossipItemFor(player, GOSSIP_ICON_TALK, "Back", GOSSIP_SENDER_MAIN, 300);
             }
             else
@@ -366,12 +413,12 @@ public:
             }
             if (item->GetTemplate()->InventoryType == INVTYPE_SHIELD)
             {
-                AddGossipItemFor(player, 1, "20 Defense", GOSSIP_SENDER_MAIN, 118);
-                AddGossipItemFor(player, 1, "25 Intellect", GOSSIP_SENDER_MAIN, 119);
-                AddGossipItemFor(player, 1, "12 Resilience", GOSSIP_SENDER_MAIN, 120);
-                AddGossipItemFor(player, 1, "36 Block", GOSSIP_SENDER_MAIN, 121);
-                AddGossipItemFor(player, 1, "18 Stamina", GOSSIP_SENDER_MAIN, 122);
-                AddGossipItemFor(player, 1, "81 Block + 50% Less Disarm", GOSSIP_SENDER_MAIN, 123);
+                AddEnchantGossip(player, EXPANSION_TBC,     "20 Defense", 118);
+                AddEnchantGossip(player, EXPANSION_VANILLA, "25 Intellect", 119);
+                AddEnchantGossip(player, EXPANSION_WRATH,   "12 Resilience", 120);
+                AddEnchantGossip(player, EXPANSION_WRATH,   "36 Block", 121);
+                AddEnchantGossip(player, EXPANSION_VANILLA, "18 Stamina", 122);
+                AddEnchantGossip(player, EXPANSION_TBC,     "81 Block + 50% Less Disarm", 123);
                 AddGossipItemFor(player, GOSSIP_ICON_TALK, "Back", GOSSIP_SENDER_MAIN, 300);
             }
             else
@@ -385,18 +432,18 @@ public:
             break;
 
         case 4: // Enchant Head
-            AddGossipItemFor(player, 1, "30 Spell Power + 10 Mp5", GOSSIP_SENDER_MAIN, 124);
-            AddGossipItemFor(player, 1, "30 Spell Power + 20 Crit", GOSSIP_SENDER_MAIN, 125);
-            AddGossipItemFor(player, 1, "29 Spell Power + 20 Resilience", GOSSIP_SENDER_MAIN, 126);
-            AddGossipItemFor(player, 1, "30 Stamina + 25 Resilience", GOSSIP_SENDER_MAIN, 127);
-            AddGossipItemFor(player, 1, "37 Stamina + 20 Defense", GOSSIP_SENDER_MAIN, 128);
-            AddGossipItemFor(player, 1, "50 Attack Power + 20 Crit", GOSSIP_SENDER_MAIN, 129);
-            AddGossipItemFor(player, 1, "50 Attack Power + 20 Resilience", GOSSIP_SENDER_MAIN, 130);
-            AddGossipItemFor(player, 1, "Arcanum of Eclipsed Moon", GOSSIP_SENDER_MAIN, 131);
-            AddGossipItemFor(player, 1, "Arcanum of the Flame's Soul", GOSSIP_SENDER_MAIN, 132);
-            AddGossipItemFor(player, 1, "Arcanum of the Fleeing Shadow", GOSSIP_SENDER_MAIN, 133);
-            AddGossipItemFor(player, 1, "Arcanum of the Frosty Soul", GOSSIP_SENDER_MAIN, 134);
-            AddGossipItemFor(player, 1, "Arcanum of Toxic Warding", GOSSIP_SENDER_MAIN, 135);
+            AddEnchantGossip(player, EXPANSION_WRATH, "30 Spell Power + 10 Mp5", 124);
+            AddEnchantGossip(player, EXPANSION_WRATH, "30 Spell Power + 20 Crit", 125);
+            AddEnchantGossip(player, EXPANSION_WRATH, "29 Spell Power + 20 Resilience", 126);
+            AddEnchantGossip(player, EXPANSION_WRATH, "30 Stamina + 25 Resilience", 127);
+            AddEnchantGossip(player, EXPANSION_WRATH, "37 Stamina + 20 Defense", 128);
+            AddEnchantGossip(player, EXPANSION_WRATH, "50 Attack Power + 20 Crit", 129);
+            AddEnchantGossip(player, EXPANSION_WRATH, "50 Attack Power + 20 Resilience", 130);
+            AddEnchantGossip(player, EXPANSION_WRATH, "Arcanum of Eclipsed Moon", 131);
+            AddEnchantGossip(player, EXPANSION_WRATH, "Arcanum of the Flame's Soul", 132);
+            AddEnchantGossip(player, EXPANSION_WRATH, "Arcanum of the Fleeing Shadow", 133);
+            AddEnchantGossip(player, EXPANSION_WRATH, "Arcanum of the Frosty Soul", 134);
+            AddEnchantGossip(player, EXPANSION_WRATH, "Arcanum of Toxic Warding", 135);
             AddGossipItemFor(player, GOSSIP_ICON_TALK, "Back", GOSSIP_SENDER_MAIN, 300);
             player->PlayerTalkClass->SendGossipMenu(100005, creature->GetGUID());
             return true;
@@ -405,18 +452,18 @@ public:
         case 5: // Enchant Shoulders
             if (player->HasSkill(SKILL_INSCRIPTION) && player->GetSkillValue(SKILL_INSCRIPTION) == 450)
             {
-                AddGossipItemFor(player, 1, "120 Attack Power + 15 Crit", GOSSIP_SENDER_MAIN, 136);
-                AddGossipItemFor(player, 1, "70 Spell Power + 8 Mp5", GOSSIP_SENDER_MAIN, 137);
-                AddGossipItemFor(player, 1, "60 Dodge + 15 Defense", GOSSIP_SENDER_MAIN, 138);
-                AddGossipItemFor(player, 1, "70 Spell Power + 15 Crit", GOSSIP_SENDER_MAIN, 139);
+                AddEnchantGossip(player, EXPANSION_WRATH, "120 Attack Power + 15 Crit", 136);
+                AddEnchantGossip(player, EXPANSION_WRATH, "70 Spell Power + 8 Mp5", 137);
+                AddEnchantGossip(player, EXPANSION_WRATH, "60 Dodge + 15 Defense", 138);
+                AddEnchantGossip(player, EXPANSION_WRATH, "70 Spell Power + 15 Crit", 139);
             }
-            AddGossipItemFor(player, 1, "40 Attack Power + 15 Crit", GOSSIP_SENDER_MAIN, 140);
-            AddGossipItemFor(player, 1, "24 Spell Power + 8 Mp5", GOSSIP_SENDER_MAIN, 141);
-            AddGossipItemFor(player, 1, "30 Stamina + 15 Resilience", GOSSIP_SENDER_MAIN, 142);
-            AddGossipItemFor(player, 1, "20 Dodge + 15 Defense", GOSSIP_SENDER_MAIN, 143);
-            AddGossipItemFor(player, 1, "24 Spell Power + 15 Crit", GOSSIP_SENDER_MAIN, 144);
-            AddGossipItemFor(player, 1, "23 Spell Power + 15 Resilience", GOSSIP_SENDER_MAIN, 145);
-            AddGossipItemFor(player, 1, "40 Attack Power + 15 Resilience", GOSSIP_SENDER_MAIN, 146);
+            AddEnchantGossip(player, EXPANSION_WRATH, "40 Attack Power + 15 Crit", 140);
+            AddEnchantGossip(player, EXPANSION_WRATH, "24 Spell Power + 8 Mp5", 141);
+            AddEnchantGossip(player, EXPANSION_WRATH, "30 Stamina + 15 Resilience", 142);
+            AddEnchantGossip(player, EXPANSION_WRATH, "20 Dodge + 15 Defense", 143);
+            AddEnchantGossip(player, EXPANSION_WRATH, "24 Spell Power + 15 Crit", 144);
+            AddEnchantGossip(player, EXPANSION_WRATH, "23 Spell Power + 15 Resilience", 145);
+            AddEnchantGossip(player, EXPANSION_WRATH, "40 Attack Power + 15 Resilience", 146);
             AddGossipItemFor(player, GOSSIP_ICON_TALK, "Back", GOSSIP_SENDER_MAIN, 300);
             player->PlayerTalkClass->SendGossipMenu(100006, creature->GetGUID());
             return true;
@@ -425,119 +472,119 @@ public:
         case 6: // Enchant Cloak
             if (player->HasSkill(SKILL_TAILORING) && player->GetSkillValue(SKILL_TAILORING) == 450)
             {
-                AddGossipItemFor(player, 1, "Darkglow Embroidery", GOSSIP_SENDER_MAIN, 149);
-                AddGossipItemFor(player, 1, "Lightweave Embroidery", GOSSIP_SENDER_MAIN, 150);
-                AddGossipItemFor(player, 1, "Swordguard Embroidery", GOSSIP_SENDER_MAIN, 151);
+                AddEnchantGossip(player, EXPANSION_WRATH, "Darkglow Embroidery", 149);
+                AddEnchantGossip(player, EXPANSION_WRATH, "Lightweave Embroidery", 150);
+                AddEnchantGossip(player, EXPANSION_WRATH, "Swordguard Embroidery", 151);
             }
             if (player->HasSkill(SKILL_ENGINEERING) && player->GetSkillValue(SKILL_ENGINEERING) == 450)
             {
-                AddGossipItemFor(player, 1, "Parachute", GOSSIP_SENDER_MAIN, 147);
+                AddEnchantGossip(player, EXPANSION_WRATH, "Parachute", 147);
             }
-            AddGossipItemFor(player, 1, "Shadow Armor", GOSSIP_SENDER_MAIN, 148);
-            AddGossipItemFor(player, 1, "10 Spirit + 2% Reduced Threat", GOSSIP_SENDER_MAIN, 152);
-            AddGossipItemFor(player, 1, "16 Defense", GOSSIP_SENDER_MAIN, 153);
-            AddGossipItemFor(player, 1, "35 Spell Penetration", GOSSIP_SENDER_MAIN, 154);
-            AddGossipItemFor(player, 1, "225 Armor", GOSSIP_SENDER_MAIN, 155);
-            AddGossipItemFor(player, 1, "22 Agility", GOSSIP_SENDER_MAIN, 156);
-            AddGossipItemFor(player, 1, "23 Haste", GOSSIP_SENDER_MAIN, 157);
+            AddEnchantGossip(player, EXPANSION_TBC,   "Shadow Armor", 148);
+            AddEnchantGossip(player, EXPANSION_WRATH, "10 Spirit + 2% Reduced Threat", 152);
+            AddEnchantGossip(player, EXPANSION_TBC,   "16 Defense", 153);
+            AddEnchantGossip(player, EXPANSION_WRATH, "35 Spell Penetration", 154);
+            AddEnchantGossip(player, EXPANSION_WRATH, "225 Armor", 155);
+            AddEnchantGossip(player, EXPANSION_TBC,   "22 Agility", 156);
+            AddEnchantGossip(player, EXPANSION_WRATH, "23 Haste", 157);
             AddGossipItemFor(player, GOSSIP_ICON_TALK, "Back", GOSSIP_SENDER_MAIN, 300);
             player->PlayerTalkClass->SendGossipMenu(100007, creature->GetGUID());
             return true;
             break;
 
-        case 7: //Enchant chest
-            AddGossipItemFor(player, 1, "+10 All Stats", GOSSIP_SENDER_MAIN, 158);
-            AddGossipItemFor(player, 1, "225 Health", GOSSIP_SENDER_MAIN, 159);
-            AddGossipItemFor(player, 1, "10 Mp5", GOSSIP_SENDER_MAIN, 160);
-            AddGossipItemFor(player, 1, "20 Resilience", GOSSIP_SENDER_MAIN, 161);
-            AddGossipItemFor(player, 1, "22 Defense", GOSSIP_SENDER_MAIN, 162);
+        case 7: // Enchant Chest
+            AddEnchantGossip(player, EXPANSION_WRATH, "+10 All Stats", 158);
+            AddEnchantGossip(player, EXPANSION_WRATH, "225 Health", 159);
+            AddEnchantGossip(player, EXPANSION_TBC,   "10 Mp5", 160);
+            AddEnchantGossip(player, EXPANSION_WRATH, "20 Resilience", 161);
+            AddEnchantGossip(player, EXPANSION_TBC,   "22 Defense", 162);
             AddGossipItemFor(player, GOSSIP_ICON_TALK, "Back", GOSSIP_SENDER_MAIN, 300);
             player->PlayerTalkClass->SendGossipMenu(100008, creature->GetGUID());
             return true;
             break;
 
-        case 8: //Enchant Bracers
-            AddGossipItemFor(player, 1, "40 Stamina", GOSSIP_SENDER_MAIN, 163);
-            AddGossipItemFor(player, 1, "30 Spell Power", GOSSIP_SENDER_MAIN, 164);
-            AddGossipItemFor(player, 1, "50 Attack Power", GOSSIP_SENDER_MAIN, 165);
-            AddGossipItemFor(player, 1, "18 Spirit", GOSSIP_SENDER_MAIN, 166);
-            AddGossipItemFor(player, 1, "15 Expertise", GOSSIP_SENDER_MAIN, 167);
-            AddGossipItemFor(player, 1, "+6 All Stats", GOSSIP_SENDER_MAIN, 168);
-            AddGossipItemFor(player, 1, "16 Intellect", GOSSIP_SENDER_MAIN, 169);
+        case 8: // Enchant Bracers
+            AddEnchantGossip(player, EXPANSION_WRATH,   "40 Stamina", 163);
+            AddEnchantGossip(player, EXPANSION_TBC,     "30 Spell Power", 164);
+            AddEnchantGossip(player, EXPANSION_WRATH,   "50 Attack Power", 165);
+            AddEnchantGossip(player, EXPANSION_VANILLA, "18 Spirit", 166);
+            AddEnchantGossip(player, EXPANSION_WRATH,   "15 Expertise", 167);
+            AddEnchantGossip(player, EXPANSION_TBC,     "+6 All Stats", 168);
+            AddEnchantGossip(player, EXPANSION_VANILLA, "16 Intellect", 169);
             if (player->HasSkill(SKILL_LEATHERWORKING) && player->GetSkillValue(SKILL_LEATHERWORKING) == 450)
             {
-                AddGossipItemFor(player, 1, "Fur Lining - Arcane Resist", GOSSIP_SENDER_MAIN, 170);
-                AddGossipItemFor(player, 1, "Fur Lining - Fire Resist", GOSSIP_SENDER_MAIN, 171);
-                AddGossipItemFor(player, 1, "Fur Lining - Frost Resist", GOSSIP_SENDER_MAIN, 172);
-                AddGossipItemFor(player, 1, "Fur Lining - Nature Resist", GOSSIP_SENDER_MAIN, 173);
-                AddGossipItemFor(player, 1, "Fur Lining - Shadow Resist", GOSSIP_SENDER_MAIN, 174);
-                AddGossipItemFor(player, 1, "Fur Lining - Attack Power", GOSSIP_SENDER_MAIN, 175);
-                AddGossipItemFor(player, 1, "Fur Lining - Stamina", GOSSIP_SENDER_MAIN, 176);
-                AddGossipItemFor(player, 1, "Fur Lining - Spellpower", GOSSIP_SENDER_MAIN, 177);
+                AddEnchantGossip(player, EXPANSION_WRATH, "Fur Lining - Arcane Resist", 170);
+                AddEnchantGossip(player, EXPANSION_WRATH, "Fur Lining - Fire Resist", 171);
+                AddEnchantGossip(player, EXPANSION_WRATH, "Fur Lining - Frost Resist", 172);
+                AddEnchantGossip(player, EXPANSION_WRATH, "Fur Lining - Nature Resist", 173);
+                AddEnchantGossip(player, EXPANSION_WRATH, "Fur Lining - Shadow Resist", 174);
+                AddEnchantGossip(player, EXPANSION_WRATH, "Fur Lining - Attack Power", 175);
+                AddEnchantGossip(player, EXPANSION_WRATH, "Fur Lining - Stamina", 176);
+                AddEnchantGossip(player, EXPANSION_WRATH, "Fur Lining - Spellpower", 177);
             }
             AddGossipItemFor(player, GOSSIP_ICON_TALK, "Back", GOSSIP_SENDER_MAIN, 300);
             player->PlayerTalkClass->SendGossipMenu(100009, creature->GetGUID());
             return true;
             break;
 
-        case 9: //Enchant Gloves
+        case 9: // Enchant Gloves
             if (player->HasSkill(SKILL_ENGINEERING) && player->GetSkillValue(SKILL_ENGINEERING) == 400)
             {
-                AddGossipItemFor(player, 1, "Hyperspeed Accelerators", GOSSIP_SENDER_MAIN, 200);
+                AddEnchantGossip(player, EXPANSION_WRATH, "Hyperspeed Accelerators", 200);
             }
-            AddGossipItemFor(player, 1, "16 Critical Strike", GOSSIP_SENDER_MAIN, 178);
-            AddGossipItemFor(player, 1, "2% Threat + 10 Parry", GOSSIP_SENDER_MAIN, 179);
-            AddGossipItemFor(player, 1, "44 Attack Power", GOSSIP_SENDER_MAIN, 180);
-            AddGossipItemFor(player, 1, "20 Agility", GOSSIP_SENDER_MAIN, 181);
-            AddGossipItemFor(player, 1, "20 Hit Rating", GOSSIP_SENDER_MAIN, 182);
-            AddGossipItemFor(player, 1, "15 Expertise", GOSSIP_SENDER_MAIN, 183);
+            AddEnchantGossip(player, EXPANSION_WRATH,   "16 Critical Strike", 178);
+            AddEnchantGossip(player, EXPANSION_WRATH,   "2% Threat + 10 Parry", 179);
+            AddEnchantGossip(player, EXPANSION_VANILLA, "44 Attack Power", 180);
+            AddEnchantGossip(player, EXPANSION_WRATH,   "20 Agility", 181);
+            AddEnchantGossip(player, EXPANSION_WRATH,   "20 Hit Rating", 182);
+            AddEnchantGossip(player, EXPANSION_WRATH,   "15 Expertise", 183);
             AddGossipItemFor(player, GOSSIP_ICON_TALK, "Back", GOSSIP_SENDER_MAIN, 300);
             player->PlayerTalkClass->SendGossipMenu(100010, creature->GetGUID());
             return true;
             break;
 
-        case 10: //Enchant legs
-            AddGossipItemFor(player, 1, "40 Resilience + 28 Stamina", GOSSIP_SENDER_MAIN, 184);
-            AddGossipItemFor(player, 1, "55 Stamina + 22 Agility", GOSSIP_SENDER_MAIN, 185);
-            AddGossipItemFor(player, 1, "75 Attack Power + 22 Critical", GOSSIP_SENDER_MAIN, 186);
-            AddGossipItemFor(player, 1, "50 Spell Power + 22 Spirit", GOSSIP_SENDER_MAIN, 187);
-            AddGossipItemFor(player, 1, "50 Spell Power + 30 Stamina", GOSSIP_SENDER_MAIN, 188);
-            AddGossipItemFor(player, 1, "72 Stamina + 35 Agility", GOSSIP_SENDER_MAIN, 189);
-            AddGossipItemFor(player, 1, "100 Attack Power + 36 Critical", GOSSIP_SENDER_MAIN, 190);
+        case 10: // Enchant Legs
+            AddEnchantGossip(player, EXPANSION_WRATH, "40 Resilience + 28 Stamina", 184);
+            AddEnchantGossip(player, EXPANSION_WRATH, "55 Stamina + 22 Agility", 185);
+            AddEnchantGossip(player, EXPANSION_WRATH, "75 Attack Power + 22 Critical", 186);
+            AddEnchantGossip(player, EXPANSION_WRATH, "50 Spell Power + 22 Spirit", 187);
+            AddEnchantGossip(player, EXPANSION_WRATH, "50 Spell Power + 30 Stamina", 188);
+            AddEnchantGossip(player, EXPANSION_WRATH, "72 Stamina + 35 Agility", 189);
+            AddEnchantGossip(player, EXPANSION_WRATH, "100 Attack Power + 36 Critical", 190);
             AddGossipItemFor(player, GOSSIP_ICON_TALK, "Back", GOSSIP_SENDER_MAIN, 300);
             player->PlayerTalkClass->SendGossipMenu(100011, creature->GetGUID());
             return true;
             break;
 
-        case 11: //Enchant Boots
-            AddGossipItemFor(player, 1, "32 Attack Power", GOSSIP_SENDER_MAIN, 191);
-            AddGossipItemFor(player, 1, "15 Stamina + Minor Speed Increase", GOSSIP_SENDER_MAIN, 192);
-            AddGossipItemFor(player, 1, "16 Agility", GOSSIP_SENDER_MAIN, 193);
-            AddGossipItemFor(player, 1, "18 Spirit", GOSSIP_SENDER_MAIN, 194);
-            AddGossipItemFor(player, 1, "Restore 7 Health + Mp5", GOSSIP_SENDER_MAIN, 195);
-            AddGossipItemFor(player, 1, "12 Hit Rating + 12 Critical", GOSSIP_SENDER_MAIN, 196);
-            AddGossipItemFor(player, 1, "22 Stamina", GOSSIP_SENDER_MAIN, 197);
+        case 11: // Enchant Boots
+            AddEnchantGossip(player, EXPANSION_VANILLA, "32 Attack Power", 191);
+            AddEnchantGossip(player, EXPANSION_WRATH,   "15 Stamina + Minor Speed Increase", 192);
+            AddEnchantGossip(player, EXPANSION_VANILLA, "16 Agility", 193);
+            AddEnchantGossip(player, EXPANSION_VANILLA, "18 Spirit", 194);
+            AddEnchantGossip(player, EXPANSION_WRATH,   "Restore 7 Health + Mp5", 195);
+            AddEnchantGossip(player, EXPANSION_WRATH,   "12 Hit Rating + 12 Critical", 196);
+            AddEnchantGossip(player, EXPANSION_VANILLA, "22 Stamina", 197);
             if (player->HasSkill(SKILL_ENGINEERING) && player->GetSkillValue(SKILL_ENGINEERING) == 450)
             {
-                AddGossipItemFor(player, 1, "Nitro Boots", GOSSIP_SENDER_MAIN, 198);
-                AddGossipItemFor(player, 1, "Hand-Mounted Pyro Rocket", GOSSIP_SENDER_MAIN, 199);
-                AddGossipItemFor(player, 1, "Reticulated Armor Webbing", GOSSIP_SENDER_MAIN, 201);
+                AddEnchantGossip(player, EXPANSION_WRATH, "Nitro Boots", 198);
+                AddEnchantGossip(player, EXPANSION_WRATH, "Hand-Mounted Pyro Rocket", 199);
+                AddEnchantGossip(player, EXPANSION_WRATH, "Reticulated Armor Webbing", 201);
             }
             AddGossipItemFor(player, GOSSIP_ICON_TALK, "Back", GOSSIP_SENDER_MAIN, 300);
             player->PlayerTalkClass->SendGossipMenu(100012, creature->GetGUID());
             return true;
             break;
 
-        case 12: //Enchant rings
-            AddGossipItemFor(player, 1, "40 Attack Power", GOSSIP_SENDER_MAIN, 202);
-            AddGossipItemFor(player, 1, "23 Spell Power", GOSSIP_SENDER_MAIN, 203);
-            AddGossipItemFor(player, 1, "30 Stamina", GOSSIP_SENDER_MAIN, 204);
+        case 12: // Enchant Rings
+            AddEnchantGossip(player, EXPANSION_WRATH, "40 Attack Power", 202);
+            AddEnchantGossip(player, EXPANSION_WRATH, "23 Spell Power", 203);
+            AddEnchantGossip(player, EXPANSION_WRATH, "30 Stamina", 204);
             AddGossipItemFor(player, GOSSIP_ICON_TALK, "Back", GOSSIP_SENDER_MAIN, 300);
             player->PlayerTalkClass->SendGossipMenu(100013, creature->GetGUID());
             return true;
             break;
 
-        case 13: // Enchant 1H Weapon
+        case 13: // Enchant Offhand Weapon
             item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
             if (!item)
             {
@@ -549,22 +596,22 @@ public:
             {
                 if (player->HasSkill(SKILL_ENCHANTING) && player->GetSkillValue(SKILL_ENCHANTING) == 450)
                 {
-                    AddGossipItemFor(player, 1, "Blade Ward", GOSSIP_SENDER_MAIN, 207);
-                    AddGossipItemFor(player, 1, "Blood Draining", GOSSIP_SENDER_MAIN, 208);
+                    AddEnchantGossip(player, EXPANSION_WRATH, "Blade Ward", 207);
+                    AddEnchantGossip(player, EXPANSION_WRATH, "Blood Draining", 208);
                 }
-                AddGossipItemFor(player, 1, "26 Agility", GOSSIP_SENDER_MAIN, 205);
-                AddGossipItemFor(player, 1, "45 Spirit", GOSSIP_SENDER_MAIN, 206);
-                AddGossipItemFor(player, 1, "Berserking", GOSSIP_SENDER_MAIN, 209);
-                AddGossipItemFor(player, 1, "25 Hit Rating + 25 Critical", GOSSIP_SENDER_MAIN, 210);
-                AddGossipItemFor(player, 1, "Black Magic", GOSSIP_SENDER_MAIN, 211);
-                AddGossipItemFor(player, 1, "Battlemaster", GOSSIP_SENDER_MAIN, 212);
-                AddGossipItemFor(player, 1, "Icebreaker", GOSSIP_SENDER_MAIN, 213);
-                AddGossipItemFor(player, 1, "Lifeward", GOSSIP_SENDER_MAIN, 214);
-                AddGossipItemFor(player, 1, "50 Stamina", GOSSIP_SENDER_MAIN, 215);
-                AddGossipItemFor(player, 1, "65 Attack Power", GOSSIP_SENDER_MAIN, 216);
-                AddGossipItemFor(player, 1, "63 Spell Power", GOSSIP_SENDER_MAIN, 217);
-                AddGossipItemFor(player, 1, "Mongoose", GOSSIP_SENDER_MAIN, 218);
-                AddGossipItemFor(player, 1, "Executioner", GOSSIP_SENDER_MAIN, 219);
+                AddEnchantGossip(player, EXPANSION_VANILLA, "26 Agility", 205);
+                AddEnchantGossip(player, EXPANSION_WRATH,   "45 Spirit", 206);
+                AddEnchantGossip(player, EXPANSION_WRATH,   "Berserking", 209);
+                AddEnchantGossip(player, EXPANSION_WRATH,   "25 Hit Rating + 25 Critical", 210);
+                AddEnchantGossip(player, EXPANSION_WRATH,   "Black Magic", 211);
+                AddEnchantGossip(player, EXPANSION_TBC,     "Battlemaster", 212);
+                AddEnchantGossip(player, EXPANSION_WRATH,   "Icebreaker", 213);
+                AddEnchantGossip(player, EXPANSION_WRATH,   "Lifeward", 214);
+                AddEnchantGossip(player, EXPANSION_WRATH,   "50 Stamina", 215);
+                AddEnchantGossip(player, EXPANSION_WRATH,   "65 Attack Power", 216);
+                AddEnchantGossip(player, EXPANSION_WRATH,   "63 Spell Power", 217);
+                AddEnchantGossip(player, EXPANSION_TBC,     "Mongoose", 218);
+                AddEnchantGossip(player, EXPANSION_TBC,     "Executioner", 219);
                 AddGossipItemFor(player, GOSSIP_ICON_TALK, "Back", GOSSIP_SENDER_MAIN, 300);
             }
             else
@@ -1059,32 +1106,11 @@ public:
         case 219:
             Enchant(player, creature, player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND), ENCHANT_WEP_EXECUTIONER);
             break;
-        
+
         case 300:
-        {
-            AddGossipItemFor(player, 1, "|TInterface/ICONS/Inv_mace_116:24:24:-18|t[Enchant Main Weapon]", GOSSIP_SENDER_MAIN, 1);
-            if (player->HasSpell(674))
-            {
-                AddGossipItemFor(player, 1, "|TInterface/ICONS/Inv_mace_116:24:24:-18|t[Enchant Offhand Weapon]", GOSSIP_SENDER_MAIN, 13);
-            }
-            AddGossipItemFor(player, 1, "|TInterface/ICONS/Inv_axe_113:24:24:-18|t[Enchant 2H Weapon]", GOSSIP_SENDER_MAIN, 2);
-            AddGossipItemFor(player, 1, "|TInterface/ICONS/Inv_shield_71:24:24:-18|t[Enchant Shield]", GOSSIP_SENDER_MAIN, 3);
-            AddGossipItemFor(player, 1, "|TInterface/ICONS/inv_helmet_29:24:24:-18|t[Enchant Head]", GOSSIP_SENDER_MAIN, 4);
-            AddGossipItemFor(player, 1, "|TInterface/ICONS/inv_shoulder_23:24:24:-18|t[Enchant Shoulders]", GOSSIP_SENDER_MAIN, 5);
-            AddGossipItemFor(player, 1, "|TInterface/ICONS/Inv_misc_cape_18:24:24:-18|t[Enchant Cloak]", GOSSIP_SENDER_MAIN, 6);
-            AddGossipItemFor(player, 1, "|TInterface/ICONS/inv_chest_cloth_04:24:24:-18|t[Enchant Chest]", GOSSIP_SENDER_MAIN, 7);
-            AddGossipItemFor(player, 1, "|TInterface/ICONS/inv_bracer_14:24:24:-18|t[Enchant Bracers]", GOSSIP_SENDER_MAIN, 8);
-            AddGossipItemFor(player, 1, "|TInterface/ICONS/inv_gauntlets_06:24:24:-18|t[Enchant Gloves]", GOSSIP_SENDER_MAIN, 9);
-            AddGossipItemFor(player, 1, "|TInterface/ICONS/inv_pants_11:24:24:-18|t[Enchant Legs]", GOSSIP_SENDER_MAIN, 10);
-            AddGossipItemFor(player, 1, "|TInterface/ICONS/inv_boots_05:24:24:-18|t[Enchant Boots]", GOSSIP_SENDER_MAIN, 11);
-
-            if (player->HasSkill(SKILL_ENCHANTING) && player->GetSkillValue(SKILL_ENCHANTING) == 450)
-                AddGossipItemFor(player, 1, "|TInterface/ICONS/Inv_jewelry_ring_85:24:24:-18|t[Enchant Rings]", GOSSIP_SENDER_MAIN, 12);
-
-            player->PlayerTalkClass->SendGossipMenu(601015, creature->GetGUID());
+            BuildMainMenu(player, creature);
             return true;
             break;
-        }
         }
 
         player->PlayerTalkClass->SendCloseGossip();

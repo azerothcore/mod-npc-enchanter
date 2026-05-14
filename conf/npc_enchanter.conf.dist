@@ -76,3 +76,50 @@ Enchanter.EmoteSpell = 0
 #  25 - POINT      
 # -------------------------------------------------------------------------------------   
 Enchanter.EmoteCommand = 3
+
+###################################################################################################
+#   ENCHANTER NPC - PROGRESSION
+###################################################################################################
+
+# -------------------------------------------------------------------------------------
+#  Enable expansion-based progression mode.
+#
+#  When enabled, the enchants offered by the NPC are gated by the player's level:
+#    - Vanilla enchants are always available (levels 1+)
+#    - TBC enchants unlock at Enchanter.Progression.TBCLevel (default 61)
+#    - Wrath enchants unlock at Enchanter.Progression.WrathLevel (default 71)
+#
+#  When disabled (default), all enchants are shown to every player regardless of level,
+#  which is the original behaviour of this module.
+#
+#  Enable : 1
+#  Disable: 0
+# -------------------------------------------------------------------------------------
+Enchanter.Progression.Enable = 0
+
+# -------------------------------------------------------------------------------------
+#  Minimum player level required to see TBC enchants.
+#  Only used when Enchanter.Progression.Enable = 1.
+#
+#  Set this to 61 for a standard progression server (TBC content starts at 61).
+#  Set it lower (e.g. 58) if you want to unlock TBC enchants a bit earlier.
+#  Set it to 1 to make TBC enchants always available (same effect as disabling the tier).
+#  Set it higher than your server's max level to permanently hide TBC enchants.
+#
+#  Default: 61
+# -------------------------------------------------------------------------------------
+Enchanter.Progression.TBCLevel = 61
+
+# -------------------------------------------------------------------------------------
+#  Minimum player level required to see Wrath of the Lich King enchants.
+#  Only used when Enchanter.Progression.Enable = 1.
+#
+#  Set this to 71 for a standard progression server (Wrath content starts at 71).
+#  Set it lower (e.g. 68) if you want to unlock Wrath enchants a bit earlier.
+#  Set it to 1 to make Wrath enchants always available.
+#  Set it higher than your server's max level to permanently hide Wrath enchants
+#  (e.g. set to 999 on a level-60-capped server to keep the game in a Vanilla state).
+#
+#  Default: 71
+# -------------------------------------------------------------------------------------
+Enchanter.Progression.WrathLevel = 71
