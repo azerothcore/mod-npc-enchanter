@@ -92,6 +92,7 @@ enum Enchants
     ENCHANT_2WEP_GREATER_SPELL_POWER = 3854,
     ENCHANT_2WEP_AGILITY = 2670,
     ENCHANT_2WEP_MONGOOSE = 2673,
+    ENCHANT_2WEP_CRUSADER = 1900,
 
     ENCHANT_SHIELD_DEFENSE = 1952,
     ENCHANT_SHIELD_INTELLECT = 1128,
@@ -324,6 +325,7 @@ public:
             AddGossipItemFor(player, 1, "63 Spell Power", GOSSIP_SENDER_MAIN, 112);
             AddGossipItemFor(player, 1, "Mongoose", GOSSIP_SENDER_MAIN, 113);
             AddGossipItemFor(player, 1, "Executioner", GOSSIP_SENDER_MAIN, 114);
+            AddGossipItemFor(player, 1, "Crusader", GOSSIP_SENDER_MAIN, 401);
             AddGossipItemFor(player, GOSSIP_ICON_TALK, "Back", GOSSIP_SENDER_MAIN, 300);
             player->PlayerTalkClass->SendGossipMenu(100002, creature->GetGUID());
             return true;
@@ -345,6 +347,7 @@ public:
                 AddGossipItemFor(player, 1, "81 Spell Power", GOSSIP_SENDER_MAIN, 115);
                 AddGossipItemFor(player, 1, "35 Agility", GOSSIP_SENDER_MAIN, 116);
                 AddGossipItemFor(player, 1, "110 Attack Power", GOSSIP_SENDER_MAIN, 117);
+                AddGossipItemFor(player, 1, "Crusader", GOSSIP_SENDER_MAIN, 401);
                 AddGossipItemFor(player, GOSSIP_ICON_TALK, "Back", GOSSIP_SENDER_MAIN, 300);
             }
             else
@@ -564,6 +567,7 @@ public:
                 AddGossipItemFor(player, 1, "65 Attack Power", GOSSIP_SENDER_MAIN, 216);
                 AddGossipItemFor(player, 1, "63 Spell Power", GOSSIP_SENDER_MAIN, 217);
                 AddGossipItemFor(player, 1, "Mongoose", GOSSIP_SENDER_MAIN, 218);
+                AddGossipItemFor(player, 1, "Crusader", GOSSIP_SENDER_MAIN, 402);
                 AddGossipItemFor(player, 1, "Executioner", GOSSIP_SENDER_MAIN, 219);
                 AddGossipItemFor(player, GOSSIP_ICON_TALK, "Back", GOSSIP_SENDER_MAIN, 300);
             }
@@ -1085,6 +1089,12 @@ public:
             return true;
             break;
         }
+        case 401:
+            Enchant(player, creature, player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND), ENCHANT_2WEP_CRUSADER);
+            break;
+        case 402:
+            Enchant(player, creature, player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND), ENCHANT_2WEP_CRUSADER);
+            break;
         }
 
         player->PlayerTalkClass->SendCloseGossip();
