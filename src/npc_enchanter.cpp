@@ -153,6 +153,8 @@ enum Enchants
     ENCHANT_GLOVES_PRECISION = 3234,
     ENCHANT_GLOVES_EXPERTISE = 3231,
     ENCHANT_GLOVES_HYPERSPEED = 3604,
+    ENCHANT_GLOVES_PYRO_ROCKET = 3603,
+    ENCHANT_GLOVES_ARMOR_WEBBING = 3860,
 
     ENCHANT_BRACERS_MAJOR_STAMINA = 3850,
     ENCHANT_BRACERS_SUPERIOR_SP = 2332,
@@ -184,8 +186,6 @@ enum Enchants
     ENCHANT_BOOTS_ICEWALKER = 3826,
     ENCHANT_BOOTS_GREATER_FORTITUDE = 1075,
     ENCHANT_BOOTS_NITRO_BOOTS = 3606,
-    ENCHANT_BOOTS_PYRO_ROCKET = 3603,
-    ENCHANT_BOOTS_ARMOR_WEBBING = 3860,
 
     ENCHANT_RING_ASSULT = 3839,
     ENCHANT_RING_GREATER_SP = 3840,
@@ -481,9 +481,11 @@ public:
             break;
 
         case 9: //Enchant Gloves
-            if (player->HasSkill(SKILL_ENGINEERING) && player->GetSkillValue(SKILL_ENGINEERING) == 400)
+            if (player->HasSkill(SKILL_ENGINEERING) && player->GetSkillValue(SKILL_ENGINEERING) >= 400)
             {
                 AddGossipItemFor(player, 1, "Hyperspeed Accelerators", GOSSIP_SENDER_MAIN, 200);
+                AddGossipItemFor(player, 1, "Hand-Mounted Pyro Rocket", GOSSIP_SENDER_MAIN, 199);
+                AddGossipItemFor(player, 1, "Reticulated Armor Webbing", GOSSIP_SENDER_MAIN, 201);
             }
             AddGossipItemFor(player, 1, "16 Critical Strike", GOSSIP_SENDER_MAIN, 178);
             AddGossipItemFor(player, 1, "2% Threat + 10 Parry", GOSSIP_SENDER_MAIN, 179);
@@ -517,11 +519,9 @@ public:
             AddGossipItemFor(player, 1, "Restore 7 Health + Mp5", GOSSIP_SENDER_MAIN, 195);
             AddGossipItemFor(player, 1, "12 Hit Rating + 12 Critical", GOSSIP_SENDER_MAIN, 196);
             AddGossipItemFor(player, 1, "22 Stamina", GOSSIP_SENDER_MAIN, 197);
-            if (player->HasSkill(SKILL_ENGINEERING) && player->GetSkillValue(SKILL_ENGINEERING) == 450)
+            if (player->HasSkill(SKILL_ENGINEERING) && player->GetSkillValue(SKILL_ENGINEERING) >= 400)
             {
                 AddGossipItemFor(player, 1, "Nitro Boots", GOSSIP_SENDER_MAIN, 198);
-                AddGossipItemFor(player, 1, "Hand-Mounted Pyro Rocket", GOSSIP_SENDER_MAIN, 199);
-                AddGossipItemFor(player, 1, "Reticulated Armor Webbing", GOSSIP_SENDER_MAIN, 201);
             }
             AddGossipItemFor(player, GOSSIP_ICON_TALK, "Back", GOSSIP_SENDER_MAIN, 300);
             player->PlayerTalkClass->SendGossipMenu(100012, creature->GetGUID());
@@ -974,7 +974,7 @@ public:
             break;
 
         case 199:
-            Enchant(player, creature, player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_FEET), ENCHANT_BOOTS_PYRO_ROCKET);
+            Enchant(player, creature, player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_HANDS), ENCHANT_GLOVES_PYRO_ROCKET);
             break;
 
         case 200:
@@ -982,7 +982,7 @@ public:
             break;
 
         case 201:
-            Enchant(player, creature, player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_FEET), ENCHANT_BOOTS_ARMOR_WEBBING);
+            Enchant(player, creature, player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_HANDS), ENCHANT_GLOVES_ARMOR_WEBBING);
             break;
 
         case 202:
